@@ -5427,12 +5427,32 @@ function pathMapWithObserver(paths_, observer_, parent) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                var keyIndex = key.index;
+                                if (keyIndex === void 0 && key !== Object.prototype && key !== Array.prototype && key.constructor && key.constructor.prototype !== key) {
+                                    keyIndex = key.index = 0;
+                                }
+                                key = key[keyIndex || 0];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    if (key.offset === void 0) {
+                                        var keyFrom = key.from;
+                                        if (keyFrom === void 0 && key !== Object.prototype && key !== Array.prototype && key.constructor && key.constructor.prototype !== key) {
+                                            keyFrom = key.from = 0;
+                                        }
+                                        key = key.offset = keyFrom || 0;
+                                    } else {
+                                        key = key.offset;
+                                    }
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                if (key.offset === void 0) {
+                                    var keyFrom = key.from;
+                                    if (keyFrom === void 0 && key !== Object.prototype && key !== Array.prototype && key.constructor && key.constructor.prototype !== key) {
+                                        keyFrom = key.from = 0;
+                                    }
+                                    key = key.offset = keyFrom || 0;
+                                } else {
+                                    key = key.offset;
+                                }
                             }
                         }
                         if (key == null) {
@@ -5450,12 +5470,32 @@ function pathMapWithObserver(paths_, observer_, parent) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                var keyIndex = key.index;
+                                if (keyIndex === void 0 && key !== Object.prototype && key !== Array.prototype && key.constructor && key.constructor.prototype !== key) {
+                                    keyIndex = key.index = 0;
+                                }
+                                key = key[keyIndex || 0];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    if (key.offset === void 0) {
+                                        var keyFrom = key.from;
+                                        if (keyFrom === void 0 && key !== Object.prototype && key !== Array.prototype && key.constructor && key.constructor.prototype !== key) {
+                                            keyFrom = key.from = 0;
+                                        }
+                                        key = key.offset = keyFrom || 0;
+                                    } else {
+                                        key = key.offset;
+                                    }
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                if (key.offset === void 0) {
+                                    var keyFrom = key.from;
+                                    if (keyFrom === void 0 && key !== Object.prototype && key !== Array.prototype && key.constructor && key.constructor.prototype !== key) {
+                                        keyFrom = key.from = 0;
+                                    }
+                                    key = key.offset = keyFrom || 0;
+                                } else {
+                                    key = key.offset;
+                                }
                             }
                         }
                         if (key != null) {
@@ -5478,8 +5518,14 @@ function pathMapWithObserver(paths_, observer_, parent) {
                     }
                     if ( // TODO: replace this with a faster Array check.
                         Array.isArray(key)) {
-                        if (++key.index === key.length) {
-                            key = key[key.index = 0];
+                        if (key !== Object.prototype && key !== Array.prototype && key.constructor && key.constructor.prototype !== key) {
+                            key.index = (key.index || 0) + 1;
+                        }
+                        if (key.index === key.length) {
+                            if (key !== Object.prototype && key !== Array.prototype && key.constructor && key.constructor.prototype !== key) {
+                                key.index = 0;
+                            }
+                            key = key[0];
                             if (key == null || typeof key !== 'object') {
                                 continue ascending;
                             }
@@ -5487,9 +5533,27 @@ function pathMapWithObserver(paths_, observer_, parent) {
                             break ascending;
                         }
                     }
-                    if (++key.offset > (key.to || (key.to = key.from + (key.length || 1) - 1))) {
-                        key.offset = key.from;
+                    var keyOffset = key.offset || 0;
+                    var keyTo = key.to;
+                    if (keyTo === void 0) {
+                        var keyFrom = key.from;
+                        if (keyFrom === void 0) {
+                            keyFrom = 0;
+                        }
+                        keyTo = keyFrom + (key.length || 1) - 1;
+                        if (key !== Object.prototype && key !== Array.prototype && key.constructor && key.constructor.prototype !== key) {
+                            key.to = keyTo;
+                        }
+                    }
+                    keyOffset++;
+                    if (keyOffset > keyTo) {
+                        if (key !== Object.prototype && key !== Array.prototype && key.constructor && key.constructor.prototype !== key) {
+                            key.offset = key.from || 0;
+                        }
                         continue ascending;
+                    }
+                    if (key !== Object.prototype && key !== Array.prototype && key.constructor && key.constructor.prototype !== key) {
+                        key.offset = keyOffset;
                     }
                     break ascending;
                 }
@@ -5527,12 +5591,32 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                var keyIndex = key.index;
+                                if (keyIndex === void 0 && key !== Object.prototype && key !== Array.prototype && key.constructor && key.constructor.prototype !== key) {
+                                    keyIndex = key.index = 0;
+                                }
+                                key = key[keyIndex || 0];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    if (key.offset === void 0) {
+                                        var keyFrom = key.from;
+                                        if (keyFrom === void 0 && key !== Object.prototype && key !== Array.prototype && key.constructor && key.constructor.prototype !== key) {
+                                            keyFrom = key.from = 0;
+                                        }
+                                        key = key.offset = keyFrom || 0;
+                                    } else {
+                                        key = key.offset;
+                                    }
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                if (key.offset === void 0) {
+                                    var keyFrom = key.from;
+                                    if (keyFrom === void 0 && key !== Object.prototype && key !== Array.prototype && key.constructor && key.constructor.prototype !== key) {
+                                        keyFrom = key.from = 0;
+                                    }
+                                    key = key.offset = keyFrom || 0;
+                                } else {
+                                    key = key.offset;
+                                }
                             }
                         }
                         if (key == null) {
@@ -5552,12 +5636,32 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                var keyIndex = key.index;
+                                if (keyIndex === void 0 && key !== Object.prototype && key !== Array.prototype && key.constructor && key.constructor.prototype !== key) {
+                                    keyIndex = key.index = 0;
+                                }
+                                key = key[keyIndex || 0];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    if (key.offset === void 0) {
+                                        var keyFrom = key.from;
+                                        if (keyFrom === void 0 && key !== Object.prototype && key !== Array.prototype && key.constructor && key.constructor.prototype !== key) {
+                                            keyFrom = key.from = 0;
+                                        }
+                                        key = key.offset = keyFrom || 0;
+                                    } else {
+                                        key = key.offset;
+                                    }
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                if (key.offset === void 0) {
+                                    var keyFrom = key.from;
+                                    if (keyFrom === void 0 && key !== Object.prototype && key !== Array.prototype && key.constructor && key.constructor.prototype !== key) {
+                                        keyFrom = key.from = 0;
+                                    }
+                                    key = key.offset = keyFrom || 0;
+                                } else {
+                                    key = key.offset;
+                                }
                             }
                         }
                         if (key != null) {
@@ -5582,8 +5686,14 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                     }
                     if ( // TODO: replace this with a faster Array check.
                         Array.isArray(key)) {
-                        if (++key.index === key.length) {
-                            key = key[key.index = 0];
+                        if (key !== Object.prototype && key !== Array.prototype && key.constructor && key.constructor.prototype !== key) {
+                            key.index = (key.index || 0) + 1;
+                        }
+                        if (key.index === key.length) {
+                            if (key !== Object.prototype && key !== Array.prototype && key.constructor && key.constructor.prototype !== key) {
+                                key.index = 0;
+                            }
+                            key = key[0];
                             if (key == null || typeof key !== 'object') {
                                 continue ascending;
                             }
@@ -5591,9 +5701,27 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                             break ascending;
                         }
                     }
-                    if (++key.offset > (key.to || (key.to = key.from + (key.length || 1) - 1))) {
-                        key.offset = key.from;
+                    var keyOffset = key.offset || 0;
+                    var keyTo = key.to;
+                    if (keyTo === void 0) {
+                        var keyFrom = key.from;
+                        if (keyFrom === void 0) {
+                            keyFrom = 0;
+                        }
+                        keyTo = keyFrom + (key.length || 1) - 1;
+                        if (key !== Object.prototype && key !== Array.prototype && key.constructor && key.constructor.prototype !== key) {
+                            key.to = keyTo;
+                        }
+                    }
+                    keyOffset++;
+                    if (keyOffset > keyTo) {
+                        if (key !== Object.prototype && key !== Array.prototype && key.constructor && key.constructor.prototype !== key) {
+                            key.offset = key.from || 0;
+                        }
                         continue ascending;
+                    }
+                    if (key !== Object.prototype && key !== Array.prototype && key.constructor && key.constructor.prototype !== key) {
+                        key.offset = keyOffset;
                     }
                     break ascending;
                 }
