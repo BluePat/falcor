@@ -315,13 +315,61 @@ function getPath(path_, cache, parent, bound) {
             for (; column < last; ++column) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
+                    // Check if key is a prototype object to prevent prototype pollution
+                    var isPrototype = key === Object.prototype || 
+                                     key === Array.prototype || 
+                                     key === Function.prototype ||
+                                     (key.constructor && key === key.constructor.prototype);
+                    
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        // Safely access index property without polluting prototype
+                        var keyIndex = Object.prototype.hasOwnProperty.call(key, 'index') ? key.index : 0;
+                        if (!isPrototype && keyIndex === void 0) {
+                            key.index = 0;
+                            keyIndex = 0;
+                        }
+                        key = key[keyIndex];
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            // Safely access offset/from properties without polluting prototype
+                            var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                            var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                            var isKeyPrototype = key === Object.prototype || 
+                                                key === Array.prototype || 
+                                                key === Function.prototype ||
+                                                (key.constructor && key === key.constructor.prototype);
+                            
+                            if (keyOffset === void 0) {
+                                if (!isKeyPrototype) {
+                                    if (keyFrom === void 0) {
+                                        key.from = 0;
+                                        keyFrom = 0;
+                                    }
+                                    key.offset = keyFrom;
+                                    keyOffset = keyFrom;
+                                } else {
+                                    keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                }
+                            }
+                            key = keyOffset;
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        // Safely access offset/from properties without polluting prototype
+                        var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                        var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                        
+                        if (keyOffset === void 0) {
+                            if (!isPrototype) {
+                                if (keyFrom === void 0) {
+                                    key.from = 0;
+                                    keyFrom = 0;
+                                }
+                                key.offset = keyFrom;
+                                keyOffset = keyFrom;
+                            } else {
+                                keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                            }
+                        }
+                        key = keyOffset;
                     }
                 }
                 if (key == null) {
@@ -549,13 +597,61 @@ function getPath(path_, cache, parent, bound) {
             if (column === last) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
+                    // Check if key is a prototype object to prevent prototype pollution
+                    var isPrototype = key === Object.prototype || 
+                                     key === Array.prototype || 
+                                     key === Function.prototype ||
+                                     (key.constructor && key === key.constructor.prototype);
+                    
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        // Safely access index property without polluting prototype
+                        var keyIndex = Object.prototype.hasOwnProperty.call(key, 'index') ? key.index : 0;
+                        if (!isPrototype && keyIndex === void 0) {
+                            key.index = 0;
+                            keyIndex = 0;
+                        }
+                        key = key[keyIndex];
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            // Safely access offset/from properties without polluting prototype
+                            var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                            var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                            var isKeyPrototype = key === Object.prototype || 
+                                                key === Array.prototype || 
+                                                key === Function.prototype ||
+                                                (key.constructor && key === key.constructor.prototype);
+                            
+                            if (keyOffset === void 0) {
+                                if (!isKeyPrototype) {
+                                    if (keyFrom === void 0) {
+                                        key.from = 0;
+                                        keyFrom = 0;
+                                    }
+                                    key.offset = keyFrom;
+                                    keyOffset = keyFrom;
+                                } else {
+                                    keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                }
+                            }
+                            key = keyOffset;
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        // Safely access offset/from properties without polluting prototype
+                        var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                        var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                        
+                        if (keyOffset === void 0) {
+                            if (!isPrototype) {
+                                if (keyFrom === void 0) {
+                                    key.from = 0;
+                                    keyFrom = 0;
+                                }
+                                key.offset = keyFrom;
+                                keyOffset = keyFrom;
+                            } else {
+                                keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                            }
+                        }
+                        key = keyOffset;
                     }
                 }
                 original[original.length = column] = key;
@@ -710,13 +806,61 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                     for (; column < last; ++column) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
+                            // Check if key is a prototype object to prevent prototype pollution
+                            var isPrototype = key === Object.prototype || 
+                                             key === Array.prototype || 
+                                             key === Function.prototype ||
+                                             (key.constructor && key === key.constructor.prototype);
+                            
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                // Safely access index property without polluting prototype
+                                var keyIndex = Object.prototype.hasOwnProperty.call(key, 'index') ? key.index : 0;
+                                if (!isPrototype && keyIndex === void 0) {
+                                    key.index = 0;
+                                    keyIndex = 0;
+                                }
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    // Safely access offset/from properties without polluting prototype
+                                    var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                                    var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                                    var isKeyPrototype = key === Object.prototype || 
+                                                        key === Array.prototype || 
+                                                        key === Function.prototype ||
+                                                        (key.constructor && key === key.constructor.prototype);
+                                    
+                                    if (keyOffset === void 0) {
+                                        if (!isKeyPrototype) {
+                                            if (keyFrom === void 0) {
+                                                key.from = 0;
+                                                keyFrom = 0;
+                                            }
+                                            key.offset = keyFrom;
+                                            keyOffset = keyFrom;
+                                        } else {
+                                            keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                        }
+                                    }
+                                    key = keyOffset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                // Safely access offset/from properties without polluting prototype
+                                var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                                var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                                
+                                if (keyOffset === void 0) {
+                                    if (!isPrototype) {
+                                        if (keyFrom === void 0) {
+                                            key.from = 0;
+                                            keyFrom = 0;
+                                        }
+                                        key.offset = keyFrom;
+                                        keyOffset = keyFrom;
+                                    } else {
+                                        keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                    }
+                                }
+                                key = keyOffset;
                             }
                         }
                         if (key == null) {
@@ -945,13 +1089,61 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                     if (column === last) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
+                            // Check if key is a prototype object to prevent prototype pollution
+                            var isPrototype = key === Object.prototype || 
+                                             key === Array.prototype || 
+                                             key === Function.prototype ||
+                                             (key.constructor && key === key.constructor.prototype);
+                            
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                // Safely access index property without polluting prototype
+                                var keyIndex = Object.prototype.hasOwnProperty.call(key, 'index') ? key.index : 0;
+                                if (!isPrototype && keyIndex === void 0) {
+                                    key.index = 0;
+                                    keyIndex = 0;
+                                }
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    // Safely access offset/from properties without polluting prototype
+                                    var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                                    var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                                    var isKeyPrototype = key === Object.prototype || 
+                                                        key === Array.prototype || 
+                                                        key === Function.prototype ||
+                                                        (key.constructor && key === key.constructor.prototype);
+                                    
+                                    if (keyOffset === void 0) {
+                                        if (!isKeyPrototype) {
+                                            if (keyFrom === void 0) {
+                                                key.from = 0;
+                                                keyFrom = 0;
+                                            }
+                                            key.offset = keyFrom;
+                                            keyOffset = keyFrom;
+                                        } else {
+                                            keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                        }
+                                    }
+                                    key = keyOffset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                // Safely access offset/from properties without polluting prototype
+                                var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                                var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                                
+                                if (keyOffset === void 0) {
+                                    if (!isPrototype) {
+                                        if (keyFrom === void 0) {
+                                            key.from = 0;
+                                            keyFrom = 0;
+                                        }
+                                        key.offset = keyFrom;
+                                        keyOffset = keyFrom;
+                                    } else {
+                                        keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                    }
+                                }
+                                key = keyOffset;
                             }
                         }
                         original[original.length = column] = key;
@@ -1277,13 +1469,61 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
             for (; column < last; ++column) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
+                    // Check if key is a prototype object to prevent prototype pollution
+                    var isPrototype = key === Object.prototype || 
+                                     key === Array.prototype || 
+                                     key === Function.prototype ||
+                                     (key.constructor && key === key.constructor.prototype);
+                    
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        // Safely access index property without polluting prototype
+                        var keyIndex = Object.prototype.hasOwnProperty.call(key, 'index') ? key.index : 0;
+                        if (!isPrototype && keyIndex === void 0) {
+                            key.index = 0;
+                            keyIndex = 0;
+                        }
+                        key = key[keyIndex];
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            // Safely access offset/from properties without polluting prototype
+                            var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                            var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                            var isKeyPrototype = key === Object.prototype || 
+                                                key === Array.prototype || 
+                                                key === Function.prototype ||
+                                                (key.constructor && key === key.constructor.prototype);
+                            
+                            if (keyOffset === void 0) {
+                                if (!isKeyPrototype) {
+                                    if (keyFrom === void 0) {
+                                        key.from = 0;
+                                        keyFrom = 0;
+                                    }
+                                    key.offset = keyFrom;
+                                    keyOffset = keyFrom;
+                                } else {
+                                    keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                }
+                            }
+                            key = keyOffset;
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        // Safely access offset/from properties without polluting prototype
+                        var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                        var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                        
+                        if (keyOffset === void 0) {
+                            if (!isPrototype) {
+                                if (keyFrom === void 0) {
+                                    key.from = 0;
+                                    keyFrom = 0;
+                                }
+                                key.offset = keyFrom;
+                                keyOffset = keyFrom;
+                            } else {
+                                keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                            }
+                        }
+                        key = keyOffset;
                     }
                 }
                 if (key == null) {
@@ -1543,13 +1783,61 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
             if (column === last) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
+                    // Check if key is a prototype object to prevent prototype pollution
+                    var isPrototype = key === Object.prototype || 
+                                     key === Array.prototype || 
+                                     key === Function.prototype ||
+                                     (key.constructor && key === key.constructor.prototype);
+                    
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        // Safely access index property without polluting prototype
+                        var keyIndex = Object.prototype.hasOwnProperty.call(key, 'index') ? key.index : 0;
+                        if (!isPrototype && keyIndex === void 0) {
+                            key.index = 0;
+                            keyIndex = 0;
+                        }
+                        key = key[keyIndex];
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            // Safely access offset/from properties without polluting prototype
+                            var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                            var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                            var isKeyPrototype = key === Object.prototype || 
+                                                key === Array.prototype || 
+                                                key === Function.prototype ||
+                                                (key.constructor && key === key.constructor.prototype);
+                            
+                            if (keyOffset === void 0) {
+                                if (!isKeyPrototype) {
+                                    if (keyFrom === void 0) {
+                                        key.from = 0;
+                                        keyFrom = 0;
+                                    }
+                                    key.offset = keyFrom;
+                                    keyOffset = keyFrom;
+                                } else {
+                                    keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                }
+                            }
+                            key = keyOffset;
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        // Safely access offset/from properties without polluting prototype
+                        var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                        var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                        
+                        if (keyOffset === void 0) {
+                            if (!isPrototype) {
+                                if (keyFrom === void 0) {
+                                    key.from = 0;
+                                    keyFrom = 0;
+                                }
+                                key.offset = keyFrom;
+                                keyOffset = keyFrom;
+                            } else {
+                                keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                            }
+                        }
+                        key = keyOffset;
                     }
                 }
                 original[original.length = column] = key;
@@ -2049,13 +2337,61 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                 for (; column < last; ++column) {
                     key = path[column];
                     if (key != null && typeof key === 'object') {
+                        // Check if key is a prototype object to prevent prototype pollution
+                        var isPrototype = key === Object.prototype || 
+                                         key === Array.prototype || 
+                                         key === Function.prototype ||
+                                         (key.constructor && key === key.constructor.prototype);
+                        
                         if (Array.isArray(key)) {
-                            key = key[key.index || (key.index = 0)];
+                            // Safely access index property without polluting prototype
+                            var keyIndex = Object.prototype.hasOwnProperty.call(key, 'index') ? key.index : 0;
+                            if (!isPrototype && keyIndex === void 0) {
+                                key.index = 0;
+                                keyIndex = 0;
+                            }
+                            key = key[keyIndex];
                             if (key != null && typeof key === 'object') {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                // Safely access offset/from properties without polluting prototype
+                                var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                                var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                                var isKeyPrototype = key === Object.prototype || 
+                                                    key === Array.prototype || 
+                                                    key === Function.prototype ||
+                                                    (key.constructor && key === key.constructor.prototype);
+                                
+                                if (keyOffset === void 0) {
+                                    if (!isKeyPrototype) {
+                                        if (keyFrom === void 0) {
+                                            key.from = 0;
+                                            keyFrom = 0;
+                                        }
+                                        key.offset = keyFrom;
+                                        keyOffset = keyFrom;
+                                    } else {
+                                        keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                    }
+                                }
+                                key = keyOffset;
                             }
                         } else {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            // Safely access offset/from properties without polluting prototype
+                            var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                            var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                            
+                            if (keyOffset === void 0) {
+                                if (!isPrototype) {
+                                    if (keyFrom === void 0) {
+                                        key.from = 0;
+                                        keyFrom = 0;
+                                    }
+                                    key.offset = keyFrom;
+                                    keyOffset = keyFrom;
+                                } else {
+                                    keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                }
+                            }
+                            key = keyOffset;
                         }
                     }
                     if (key == null) {
@@ -2331,13 +2667,61 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                 if (column === last) {
                     key = path[column];
                     if (key != null && typeof key === 'object') {
+                        // Check if key is a prototype object to prevent prototype pollution
+                        var isPrototype = key === Object.prototype || 
+                                         key === Array.prototype || 
+                                         key === Function.prototype ||
+                                         (key.constructor && key === key.constructor.prototype);
+                        
                         if (Array.isArray(key)) {
-                            key = key[key.index || (key.index = 0)];
+                            // Safely access index property without polluting prototype
+                            var keyIndex = Object.prototype.hasOwnProperty.call(key, 'index') ? key.index : 0;
+                            if (!isPrototype && keyIndex === void 0) {
+                                key.index = 0;
+                                keyIndex = 0;
+                            }
+                            key = key[keyIndex];
                             if (key != null && typeof key === 'object') {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                // Safely access offset/from properties without polluting prototype
+                                var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                                var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                                var isKeyPrototype = key === Object.prototype || 
+                                                    key === Array.prototype || 
+                                                    key === Function.prototype ||
+                                                    (key.constructor && key === key.constructor.prototype);
+                                
+                                if (keyOffset === void 0) {
+                                    if (!isKeyPrototype) {
+                                        if (keyFrom === void 0) {
+                                            key.from = 0;
+                                            keyFrom = 0;
+                                        }
+                                        key.offset = keyFrom;
+                                        keyOffset = keyFrom;
+                                    } else {
+                                        keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                    }
+                                }
+                                key = keyOffset;
                             }
                         } else {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            // Safely access offset/from properties without polluting prototype
+                            var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                            var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                            
+                            if (keyOffset === void 0) {
+                                if (!isPrototype) {
+                                    if (keyFrom === void 0) {
+                                        key.from = 0;
+                                        keyFrom = 0;
+                                    }
+                                    key.offset = keyFrom;
+                                    keyOffset = keyFrom;
+                                } else {
+                                    keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                }
+                            }
+                            key = keyOffset;
                         }
                     }
                     original[original.length = column] = key;
@@ -2935,13 +3319,61 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                     for (; column < last; ++column) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
+                            // Check if key is a prototype object to prevent prototype pollution
+                            var isPrototype = key === Object.prototype || 
+                                             key === Array.prototype || 
+                                             key === Function.prototype ||
+                                             (key.constructor && key === key.constructor.prototype);
+                            
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                // Safely access index property without polluting prototype
+                                var keyIndex = Object.prototype.hasOwnProperty.call(key, 'index') ? key.index : 0;
+                                if (!isPrototype && keyIndex === void 0) {
+                                    key.index = 0;
+                                    keyIndex = 0;
+                                }
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    // Safely access offset/from properties without polluting prototype
+                                    var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                                    var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                                    var isKeyPrototype = key === Object.prototype || 
+                                                        key === Array.prototype || 
+                                                        key === Function.prototype ||
+                                                        (key.constructor && key === key.constructor.prototype);
+                                    
+                                    if (keyOffset === void 0) {
+                                        if (!isKeyPrototype) {
+                                            if (keyFrom === void 0) {
+                                                key.from = 0;
+                                                keyFrom = 0;
+                                            }
+                                            key.offset = keyFrom;
+                                            keyOffset = keyFrom;
+                                        } else {
+                                            keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                        }
+                                    }
+                                    key = keyOffset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                // Safely access offset/from properties without polluting prototype
+                                var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                                var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                                
+                                if (keyOffset === void 0) {
+                                    if (!isPrototype) {
+                                        if (keyFrom === void 0) {
+                                            key.from = 0;
+                                            keyFrom = 0;
+                                        }
+                                        key.offset = keyFrom;
+                                        keyOffset = keyFrom;
+                                    } else {
+                                        keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                    }
+                                }
+                                key = keyOffset;
                             }
                         }
                         if (key == null) {
@@ -4101,13 +4533,61 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                     if (column === last) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
+                            // Check if key is a prototype object to prevent prototype pollution
+                            var isPrototype = key === Object.prototype || 
+                                             key === Array.prototype || 
+                                             key === Function.prototype ||
+                                             (key.constructor && key === key.constructor.prototype);
+                            
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                // Safely access index property without polluting prototype
+                                var keyIndex = Object.prototype.hasOwnProperty.call(key, 'index') ? key.index : 0;
+                                if (!isPrototype && keyIndex === void 0) {
+                                    key.index = 0;
+                                    keyIndex = 0;
+                                }
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    // Safely access offset/from properties without polluting prototype
+                                    var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                                    var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                                    var isKeyPrototype = key === Object.prototype || 
+                                                        key === Array.prototype || 
+                                                        key === Function.prototype ||
+                                                        (key.constructor && key === key.constructor.prototype);
+                                    
+                                    if (keyOffset === void 0) {
+                                        if (!isKeyPrototype) {
+                                            if (keyFrom === void 0) {
+                                                key.from = 0;
+                                                keyFrom = 0;
+                                            }
+                                            key.offset = keyFrom;
+                                            keyOffset = keyFrom;
+                                        } else {
+                                            keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                        }
+                                    }
+                                    key = keyOffset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                // Safely access offset/from properties without polluting prototype
+                                var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                                var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                                
+                                if (keyOffset === void 0) {
+                                    if (!isPrototype) {
+                                        if (keyFrom === void 0) {
+                                            key.from = 0;
+                                            keyFrom = 0;
+                                        }
+                                        key.offset = keyFrom;
+                                        keyOffset = keyFrom;
+                                    } else {
+                                        keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                    }
+                                }
+                                key = keyOffset;
                             }
                         }
                         original[original.length = column] = key;
@@ -4738,13 +5218,61 @@ function invalidatePath(path_, cache, parent, bound) {
             for (; column < last; ++column) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
+                    // Check if key is a prototype object to prevent prototype pollution
+                    var isPrototype = key === Object.prototype || 
+                                     key === Array.prototype || 
+                                     key === Function.prototype ||
+                                     (key.constructor && key === key.constructor.prototype);
+                    
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        // Safely access index property without polluting prototype
+                        var keyIndex = Object.prototype.hasOwnProperty.call(key, 'index') ? key.index : 0;
+                        if (!isPrototype && keyIndex === void 0) {
+                            key.index = 0;
+                            keyIndex = 0;
+                        }
+                        key = key[keyIndex];
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            // Safely access offset/from properties without polluting prototype
+                            var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                            var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                            var isKeyPrototype = key === Object.prototype || 
+                                                key === Array.prototype || 
+                                                key === Function.prototype ||
+                                                (key.constructor && key === key.constructor.prototype);
+                            
+                            if (keyOffset === void 0) {
+                                if (!isKeyPrototype) {
+                                    if (keyFrom === void 0) {
+                                        key.from = 0;
+                                        keyFrom = 0;
+                                    }
+                                    key.offset = keyFrom;
+                                    keyOffset = keyFrom;
+                                } else {
+                                    keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                }
+                            }
+                            key = keyOffset;
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        // Safely access offset/from properties without polluting prototype
+                        var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                        var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                        
+                        if (keyOffset === void 0) {
+                            if (!isPrototype) {
+                                if (keyFrom === void 0) {
+                                    key.from = 0;
+                                    keyFrom = 0;
+                                }
+                                key.offset = keyFrom;
+                                keyOffset = keyFrom;
+                            } else {
+                                keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                            }
+                        }
+                        key = keyOffset;
                     }
                 }
                 if (key == null) {
@@ -4921,13 +5449,61 @@ function invalidatePath(path_, cache, parent, bound) {
             if (column === last) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
+                    // Check if key is a prototype object to prevent prototype pollution
+                    var isPrototype = key === Object.prototype || 
+                                     key === Array.prototype || 
+                                     key === Function.prototype ||
+                                     (key.constructor && key === key.constructor.prototype);
+                    
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        // Safely access index property without polluting prototype
+                        var keyIndex = Object.prototype.hasOwnProperty.call(key, 'index') ? key.index : 0;
+                        if (!isPrototype && keyIndex === void 0) {
+                            key.index = 0;
+                            keyIndex = 0;
+                        }
+                        key = key[keyIndex];
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            // Safely access offset/from properties without polluting prototype
+                            var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                            var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                            var isKeyPrototype = key === Object.prototype || 
+                                                key === Array.prototype || 
+                                                key === Function.prototype ||
+                                                (key.constructor && key === key.constructor.prototype);
+                            
+                            if (keyOffset === void 0) {
+                                if (!isKeyPrototype) {
+                                    if (keyFrom === void 0) {
+                                        key.from = 0;
+                                        keyFrom = 0;
+                                    }
+                                    key.offset = keyFrom;
+                                    keyOffset = keyFrom;
+                                } else {
+                                    keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                }
+                            }
+                            key = keyOffset;
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        // Safely access offset/from properties without polluting prototype
+                        var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                        var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                        
+                        if (keyOffset === void 0) {
+                            if (!isPrototype) {
+                                if (keyFrom === void 0) {
+                                    key.from = 0;
+                                    keyFrom = 0;
+                                }
+                                key.offset = keyFrom;
+                                keyOffset = keyFrom;
+                            } else {
+                                keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                            }
+                        }
+                        key = keyOffset;
                     }
                 }
                 if (key != null) {
@@ -5090,13 +5666,61 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                     for (; column < last; ++column) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
+                            // Check if key is a prototype object to prevent prototype pollution
+                            var isPrototype = key === Object.prototype || 
+                                             key === Array.prototype || 
+                                             key === Function.prototype ||
+                                             (key.constructor && key === key.constructor.prototype);
+                            
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                // Safely access index property without polluting prototype
+                                var keyIndex = Object.prototype.hasOwnProperty.call(key, 'index') ? key.index : 0;
+                                if (!isPrototype && keyIndex === void 0) {
+                                    key.index = 0;
+                                    keyIndex = 0;
+                                }
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    // Safely access offset/from properties without polluting prototype
+                                    var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                                    var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                                    var isKeyPrototype = key === Object.prototype || 
+                                                        key === Array.prototype || 
+                                                        key === Function.prototype ||
+                                                        (key.constructor && key === key.constructor.prototype);
+                                    
+                                    if (keyOffset === void 0) {
+                                        if (!isKeyPrototype) {
+                                            if (keyFrom === void 0) {
+                                                key.from = 0;
+                                                keyFrom = 0;
+                                            }
+                                            key.offset = keyFrom;
+                                            keyOffset = keyFrom;
+                                        } else {
+                                            keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                        }
+                                    }
+                                    key = keyOffset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                // Safely access offset/from properties without polluting prototype
+                                var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                                var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                                
+                                if (keyOffset === void 0) {
+                                    if (!isPrototype) {
+                                        if (keyFrom === void 0) {
+                                            key.from = 0;
+                                            keyFrom = 0;
+                                        }
+                                        key.offset = keyFrom;
+                                        keyOffset = keyFrom;
+                                    } else {
+                                        keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                    }
+                                }
+                                key = keyOffset;
                             }
                         }
                         if (key == null) {
@@ -5273,13 +5897,61 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                     if (column === last) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
+                            // Check if key is a prototype object to prevent prototype pollution
+                            var isPrototype = key === Object.prototype || 
+                                             key === Array.prototype || 
+                                             key === Function.prototype ||
+                                             (key.constructor && key === key.constructor.prototype);
+                            
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                // Safely access index property without polluting prototype
+                                var keyIndex = Object.prototype.hasOwnProperty.call(key, 'index') ? key.index : 0;
+                                if (!isPrototype && keyIndex === void 0) {
+                                    key.index = 0;
+                                    keyIndex = 0;
+                                }
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    // Safely access offset/from properties without polluting prototype
+                                    var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                                    var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                                    var isKeyPrototype = key === Object.prototype || 
+                                                        key === Array.prototype || 
+                                                        key === Function.prototype ||
+                                                        (key.constructor && key === key.constructor.prototype);
+                                    
+                                    if (keyOffset === void 0) {
+                                        if (!isKeyPrototype) {
+                                            if (keyFrom === void 0) {
+                                                key.from = 0;
+                                                keyFrom = 0;
+                                            }
+                                            key.offset = keyFrom;
+                                            keyOffset = keyFrom;
+                                        } else {
+                                            keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                        }
+                                    }
+                                    key = keyOffset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                // Safely access offset/from properties without polluting prototype
+                                var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                                var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                                
+                                if (keyOffset === void 0) {
+                                    if (!isPrototype) {
+                                        if (keyFrom === void 0) {
+                                            key.from = 0;
+                                            keyFrom = 0;
+                                        }
+                                        key.offset = keyFrom;
+                                        keyOffset = keyFrom;
+                                    } else {
+                                        keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                    }
+                                }
+                                key = keyOffset;
                             }
                         }
                         if (key != null) {
@@ -5426,13 +6098,61 @@ function pathMapWithObserver(paths_, observer_, parent) {
                     for (; column < last; ++column) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
+                            // Check if key is a prototype object to prevent prototype pollution
+                            var isPrototype = key === Object.prototype || 
+                                             key === Array.prototype || 
+                                             key === Function.prototype ||
+                                             (key.constructor && key === key.constructor.prototype);
+                            
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                // Safely access index property without polluting prototype
+                                var keyIndex = Object.prototype.hasOwnProperty.call(key, 'index') ? key.index : 0;
+                                if (!isPrototype && keyIndex === void 0) {
+                                    key.index = 0;
+                                    keyIndex = 0;
+                                }
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    // Safely access offset/from properties without polluting prototype
+                                    var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                                    var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                                    var isKeyPrototype = key === Object.prototype || 
+                                                        key === Array.prototype || 
+                                                        key === Function.prototype ||
+                                                        (key.constructor && key === key.constructor.prototype);
+                                    
+                                    if (keyOffset === void 0) {
+                                        if (!isKeyPrototype) {
+                                            if (keyFrom === void 0) {
+                                                key.from = 0;
+                                                keyFrom = 0;
+                                            }
+                                            key.offset = keyFrom;
+                                            keyOffset = keyFrom;
+                                        } else {
+                                            keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                        }
+                                    }
+                                    key = keyOffset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                // Safely access offset/from properties without polluting prototype
+                                var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                                var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                                
+                                if (keyOffset === void 0) {
+                                    if (!isPrototype) {
+                                        if (keyFrom === void 0) {
+                                            key.from = 0;
+                                            keyFrom = 0;
+                                        }
+                                        key.offset = keyFrom;
+                                        keyOffset = keyFrom;
+                                    } else {
+                                        keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                    }
+                                }
+                                key = keyOffset;
                             }
                         }
                         if (key == null) {
@@ -5449,13 +6169,61 @@ function pathMapWithObserver(paths_, observer_, parent) {
                     if (column === last) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
+                            // Check if key is a prototype object to prevent prototype pollution
+                            var isPrototype = key === Object.prototype || 
+                                             key === Array.prototype || 
+                                             key === Function.prototype ||
+                                             (key.constructor && key === key.constructor.prototype);
+                            
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                // Safely access index property without polluting prototype
+                                var keyIndex = Object.prototype.hasOwnProperty.call(key, 'index') ? key.index : 0;
+                                if (!isPrototype && keyIndex === void 0) {
+                                    key.index = 0;
+                                    keyIndex = 0;
+                                }
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    // Safely access offset/from properties without polluting prototype
+                                    var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                                    var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                                    var isKeyPrototype = key === Object.prototype || 
+                                                        key === Array.prototype || 
+                                                        key === Function.prototype ||
+                                                        (key.constructor && key === key.constructor.prototype);
+                                    
+                                    if (keyOffset === void 0) {
+                                        if (!isKeyPrototype) {
+                                            if (keyFrom === void 0) {
+                                                key.from = 0;
+                                                keyFrom = 0;
+                                            }
+                                            key.offset = keyFrom;
+                                            keyOffset = keyFrom;
+                                        } else {
+                                            keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                        }
+                                    }
+                                    key = keyOffset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                // Safely access offset/from properties without polluting prototype
+                                var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                                var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                                
+                                if (keyOffset === void 0) {
+                                    if (!isPrototype) {
+                                        if (keyFrom === void 0) {
+                                            key.from = 0;
+                                            keyFrom = 0;
+                                        }
+                                        key.offset = keyFrom;
+                                        keyOffset = keyFrom;
+                                    } else {
+                                        keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                    }
+                                }
+                                key = keyOffset;
                             }
                         }
                         if (key != null) {
@@ -5526,13 +6294,61 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                     for (; column < last; ++column) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
+                            // Check if key is a prototype object to prevent prototype pollution
+                            var isPrototype = key === Object.prototype || 
+                                             key === Array.prototype || 
+                                             key === Function.prototype ||
+                                             (key.constructor && key === key.constructor.prototype);
+                            
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                // Safely access index property without polluting prototype
+                                var keyIndex = Object.prototype.hasOwnProperty.call(key, 'index') ? key.index : 0;
+                                if (!isPrototype && keyIndex === void 0) {
+                                    key.index = 0;
+                                    keyIndex = 0;
+                                }
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    // Safely access offset/from properties without polluting prototype
+                                    var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                                    var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                                    var isKeyPrototype = key === Object.prototype || 
+                                                        key === Array.prototype || 
+                                                        key === Function.prototype ||
+                                                        (key.constructor && key === key.constructor.prototype);
+                                    
+                                    if (keyOffset === void 0) {
+                                        if (!isKeyPrototype) {
+                                            if (keyFrom === void 0) {
+                                                key.from = 0;
+                                                keyFrom = 0;
+                                            }
+                                            key.offset = keyFrom;
+                                            keyOffset = keyFrom;
+                                        } else {
+                                            keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                        }
+                                    }
+                                    key = keyOffset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                // Safely access offset/from properties without polluting prototype
+                                var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                                var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                                
+                                if (keyOffset === void 0) {
+                                    if (!isPrototype) {
+                                        if (keyFrom === void 0) {
+                                            key.from = 0;
+                                            keyFrom = 0;
+                                        }
+                                        key.offset = keyFrom;
+                                        keyOffset = keyFrom;
+                                    } else {
+                                        keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                    }
+                                }
+                                key = keyOffset;
                             }
                         }
                         if (key == null) {
@@ -5551,13 +6367,61 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                     if (column === last) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
+                            // Check if key is a prototype object to prevent prototype pollution
+                            var isPrototype = key === Object.prototype || 
+                                             key === Array.prototype || 
+                                             key === Function.prototype ||
+                                             (key.constructor && key === key.constructor.prototype);
+                            
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                // Safely access index property without polluting prototype
+                                var keyIndex = Object.prototype.hasOwnProperty.call(key, 'index') ? key.index : 0;
+                                if (!isPrototype && keyIndex === void 0) {
+                                    key.index = 0;
+                                    keyIndex = 0;
+                                }
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    // Safely access offset/from properties without polluting prototype
+                                    var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                                    var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                                    var isKeyPrototype = key === Object.prototype || 
+                                                        key === Array.prototype || 
+                                                        key === Function.prototype ||
+                                                        (key.constructor && key === key.constructor.prototype);
+                                    
+                                    if (keyOffset === void 0) {
+                                        if (!isKeyPrototype) {
+                                            if (keyFrom === void 0) {
+                                                key.from = 0;
+                                                keyFrom = 0;
+                                            }
+                                            key.offset = keyFrom;
+                                            keyOffset = keyFrom;
+                                        } else {
+                                            keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                        }
+                                    }
+                                    key = keyOffset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                // Safely access offset/from properties without polluting prototype
+                                var keyOffset = Object.prototype.hasOwnProperty.call(key, 'offset') ? key.offset : void 0;
+                                var keyFrom = Object.prototype.hasOwnProperty.call(key, 'from') ? key.from : void 0;
+                                
+                                if (keyOffset === void 0) {
+                                    if (!isPrototype) {
+                                        if (keyFrom === void 0) {
+                                            key.from = 0;
+                                            keyFrom = 0;
+                                        }
+                                        key.offset = keyFrom;
+                                        keyOffset = keyFrom;
+                                    } else {
+                                        keyOffset = keyFrom !== void 0 ? keyFrom : 0;
+                                    }
+                                }
+                                key = keyOffset;
                             }
                         }
                         if (key != null) {
