@@ -5982,6 +5982,10 @@ function serialize(cache) {
             message = frame.message;
             keys = frame.keys;
             while ((key = keys.pop()) != null) {
+                // Prevent prototype pollution by skipping dangerous keys
+                if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+                    continue;
+                }
                 context = context[key];
                 if (context == null || typeof context !== 'object') {
                     message[key] = context;
@@ -6021,6 +6025,10 @@ function deserialize(cache) {
             context = frame.context;
             keys = frame.keys;
             while ((key = keys.pop()) != null) {
+                // Prevent prototype pollution by skipping dangerous keys
+                if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+                    continue;
+                }
                 path[depth] = key;
                 context = context[key];
                 if (context == null || typeof context !== 'object' || context.$type !== void 0 || Array.isArray(context)) {
@@ -6066,6 +6074,10 @@ function flatten(obj) {
             for (keyCount = 0; keyCount < keys.length; keyCount++) {
                 key = keys[keyCount];
                 if (key[0] !== '_' || key[1] !== '_') {
+                    // Prevent prototype pollution by skipping dangerous keys
+                    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+                        continue;
+                    }
                     flattenedObject[key] = flatten(obj[key]);
                 }
             }
@@ -6153,6 +6165,10 @@ function buildQueries(root) {
     memo = {};
     while (++i < n) {
         child = children[i];
+        // Prevent prototype pollution by skipping dangerous keys
+        if (child === '__proto__' || child === 'constructor' || child === 'prototype') {
+            continue;
+        }
         paths = buildQueries(root[child]);
         key = createKey(paths);
         childIsNum = typeof child === 'string' && !charPattern.test(child);
