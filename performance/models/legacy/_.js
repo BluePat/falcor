@@ -5982,6 +5982,10 @@ function serialize(cache) {
             message = frame.message;
             keys = frame.keys;
             while ((key = keys.pop()) != null) {
+                // Skip prototype-polluting keys
+                if (isPollutingKey(key)) {
+                    continue;
+                }
                 context = context[key];
                 if (context == null || typeof context !== 'object') {
                     message[key] = context;
@@ -6003,6 +6007,10 @@ function serialize(cache) {
 
     function internalKeys(x) {
         return x[0] !== '_' || x[1] !== '_';
+    }
+
+    function isPollutingKey(key) {
+        return key === '__proto__' || key === 'constructor' || key === 'prototype';
     }
 }
 
