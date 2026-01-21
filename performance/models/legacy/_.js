@@ -316,12 +316,20 @@ function getPath(path_, cache, parent, bound) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        // Prevent prototype pollution: read property value, use default if not present
+                        var keyIndex = key.index !== undefined ? key.index : 0;
+                        key = key[keyIndex];
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            // Prevent prototype pollution for offset and from properties
+                            var keyFrom = key.from !== undefined ? key.from : 0;
+                            var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                            key = keyOffset;
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        // Prevent prototype pollution for offset and from properties
+                        var keyFrom = key.from !== undefined ? key.from : 0;
+                        var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                        key = keyOffset;
                     }
                 }
                 if (key == null) {
@@ -550,12 +558,20 @@ function getPath(path_, cache, parent, bound) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        // Prevent prototype pollution: read property value, use default if not present
+                        var keyIndex = key.index !== undefined ? key.index : 0;
+                        key = key[keyIndex];
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            // Prevent prototype pollution for offset and from properties
+                            var keyFrom = key.from !== undefined ? key.from : 0;
+                            var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                            key = keyOffset;
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        // Prevent prototype pollution for offset and from properties
+                        var keyFrom = key.from !== undefined ? key.from : 0;
+                        var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                        key = keyOffset;
                     }
                 }
                 original[original.length = column] = key;
@@ -683,7 +699,8 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
     contexts[-1] = contextParent;
     for (; index < length; paths.index = ++index) {
         path = paths[index];
-        column = path.index || (path.index = 0);
+        // Prevent prototype pollution: read property value, use default if not present
+        column = path.index !== undefined ? path.index : 0;
         last = path.length - 1;
         refs[-1] = path;
         crossed = [];
@@ -711,12 +728,20 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                // Prevent prototype pollution: read property value, use default if not present
+                                var keyIndex = key.index !== undefined ? key.index : 0;
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    // Prevent prototype pollution for offset and from properties
+                                    var keyFrom = key.from !== undefined ? key.from : 0;
+                                    var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                                    key = keyOffset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                // Prevent prototype pollution for offset and from properties
+                                var keyFrom = key.from !== undefined ? key.from : 0;
+                                var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                                key = keyOffset;
                             }
                         }
                         if (key == null) {
@@ -946,12 +971,20 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                // Prevent prototype pollution: read property value, use default if not present
+                                var keyIndex = key.index !== undefined ? key.index : 0;
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    // Prevent prototype pollution for offset and from properties
+                                    var keyFrom = key.from !== undefined ? key.from : 0;
+                                    var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                                    key = keyOffset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                // Prevent prototype pollution for offset and from properties
+                                var keyFrom = key.from !== undefined ? key.from : 0;
+                                var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                                key = keyOffset;
                             }
                         }
                         original[original.length = column] = key;
@@ -1278,12 +1311,20 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        // Prevent prototype pollution: read property value, use default if not present
+                        var keyIndex = key.index !== undefined ? key.index : 0;
+                        key = key[keyIndex];
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            // Prevent prototype pollution for offset and from properties
+                            var keyFrom = key.from !== undefined ? key.from : 0;
+                            var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                            key = keyOffset;
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        // Prevent prototype pollution for offset and from properties
+                        var keyFrom = key.from !== undefined ? key.from : 0;
+                        var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                        key = keyOffset;
                     }
                 }
                 if (key == null) {
@@ -1544,12 +1585,20 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        // Prevent prototype pollution: read property value, use default if not present
+                        var keyIndex = key.index !== undefined ? key.index : 0;
+                        key = key[keyIndex];
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            // Prevent prototype pollution for offset and from properties
+                            var keyFrom = key.from !== undefined ? key.from : 0;
+                            var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                            key = keyOffset;
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        // Prevent prototype pollution for offset and from properties
+                        var keyFrom = key.from !== undefined ? key.from : 0;
+                        var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                        key = keyOffset;
                     }
                 }
                 original[original.length = column] = key;
@@ -2036,7 +2085,8 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
         pbv = pbvs[index];
         path = pbv.path;
         message = pbv.value;
-        column = path.index || (path.index = 0);
+        // Prevent prototype pollution: read property value, use default if not present
+        column = path.index !== undefined ? path.index : 0;
         offset = 0;
         last = path.length - 1;
         contextParent = boundContext;
@@ -2050,12 +2100,20 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                     key = path[column];
                     if (key != null && typeof key === 'object') {
                         if (Array.isArray(key)) {
-                            key = key[key.index || (key.index = 0)];
+                            // Prevent prototype pollution: read property value, use default if not present
+                            var keyIndex = key.index !== undefined ? key.index : 0;
+                            key = key[keyIndex];
                             if (key != null && typeof key === 'object') {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                // Prevent prototype pollution for offset and from properties
+                                var keyFrom = key.from !== undefined ? key.from : 0;
+                                var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                                key = keyOffset;
                             }
                         } else {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            // Prevent prototype pollution for offset and from properties
+                            var keyFrom = key.from !== undefined ? key.from : 0;
+                            var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                            key = keyOffset;
                         }
                     }
                     if (key == null) {
@@ -2332,12 +2390,20 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                     key = path[column];
                     if (key != null && typeof key === 'object') {
                         if (Array.isArray(key)) {
-                            key = key[key.index || (key.index = 0)];
+                            // Prevent prototype pollution: read property value, use default if not present
+                            var keyIndex = key.index !== undefined ? key.index : 0;
+                            key = key[keyIndex];
                             if (key != null && typeof key === 'object') {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                // Prevent prototype pollution for offset and from properties
+                                var keyFrom = key.from !== undefined ? key.from : 0;
+                                var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                                key = keyOffset;
                             }
                         } else {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            // Prevent prototype pollution for offset and from properties
+                            var keyFrom = key.from !== undefined ? key.from : 0;
+                            var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                            key = keyOffset;
                         }
                     }
                     original[original.length = column] = key;
@@ -2897,15 +2963,17 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
         };
         batchedPathMap = self._pathMapWithObserver(paths, observer, batchedPathMap);
     }
-    index = pbf.index || (pbf.index = 0);
+    // Prevent prototype pollution: read property value, use default if not present
+    index = pbf.index !== undefined ? pbf.index : 0;
     length = paths.length;
     contexts[-1] = contextParent;
     messages[-1] = messageParent;
     batchedPathMaps[-1] = batchedPathMap;
     for (; index < length; paths.index = ++index) {
         path = paths[index];
-        column = path.index || (path.index = 0);
-        offset = path.offset || (path.offset = 0);
+        // Prevent prototype pollution: read property value, use default if not present
+        column = path.index !== undefined ? path.index : 0;
+        offset = path.offset !== undefined ? path.offset : 0;
         last = path.length - 1;
         depth = -1;
         refs[-1] = path;
@@ -2936,12 +3004,20 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                // Prevent prototype pollution: read property value, use default if not present
+                                var keyIndex = key.index !== undefined ? key.index : 0;
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    // Prevent prototype pollution for offset and from properties
+                                    var keyFrom = key.from !== undefined ? key.from : 0;
+                                    var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                                    key = keyOffset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                // Prevent prototype pollution for offset and from properties
+                                var keyFrom = key.from !== undefined ? key.from : 0;
+                                var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                                key = keyOffset;
                             }
                         }
                         if (key == null) {
@@ -4102,12 +4178,20 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                // Prevent prototype pollution: read property value, use default if not present
+                                var keyIndex = key.index !== undefined ? key.index : 0;
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    // Prevent prototype pollution for offset and from properties
+                                    var keyFrom = key.from !== undefined ? key.from : 0;
+                                    var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                                    key = keyOffset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                // Prevent prototype pollution for offset and from properties
+                                var keyFrom = key.from !== undefined ? key.from : 0;
+                                var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                                key = keyOffset;
                             }
                         }
                         original[original.length = column] = key;
@@ -4739,12 +4823,20 @@ function invalidatePath(path_, cache, parent, bound) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        // Prevent prototype pollution: read property value, use default if not present
+                        var keyIndex = key.index !== undefined ? key.index : 0;
+                        key = key[keyIndex];
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            // Prevent prototype pollution for offset and from properties
+                            var keyFrom = key.from !== undefined ? key.from : 0;
+                            var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                            key = keyOffset;
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        // Prevent prototype pollution for offset and from properties
+                        var keyFrom = key.from !== undefined ? key.from : 0;
+                        var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                        key = keyOffset;
                     }
                 }
                 if (key == null) {
@@ -4922,12 +5014,20 @@ function invalidatePath(path_, cache, parent, bound) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        // Prevent prototype pollution: read property value, use default if not present
+                        var keyIndex = key.index !== undefined ? key.index : 0;
+                        key = key[keyIndex];
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            // Prevent prototype pollution for offset and from properties
+                            var keyFrom = key.from !== undefined ? key.from : 0;
+                            var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                            key = keyOffset;
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        // Prevent prototype pollution for offset and from properties
+                        var keyFrom = key.from !== undefined ? key.from : 0;
+                        var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                        key = keyOffset;
                     }
                 }
                 if (key != null) {
@@ -5075,8 +5175,9 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
     contexts[-1] = contextParent;
     for (; index < length; paths.index = ++index) {
         path = paths[index];
-        column = path.index || (path.index = 0);
-        offset = path.offset || (path.offset = 0);
+        // Prevent prototype pollution: read property value, use default if not present
+        column = path.index !== undefined ? path.index : 0;
+        offset = path.offset !== undefined ? path.offset : 0;
         last = path.length - 1;
         depth = -1;
         refs[-1] = path;
@@ -5091,12 +5192,20 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                // Prevent prototype pollution: read property value, use default if not present
+                                var keyIndex = key.index !== undefined ? key.index : 0;
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    // Prevent prototype pollution for offset and from properties
+                                    var keyFrom = key.from !== undefined ? key.from : 0;
+                                    var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                                    key = keyOffset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                // Prevent prototype pollution for offset and from properties
+                                var keyFrom = key.from !== undefined ? key.from : 0;
+                                var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                                key = keyOffset;
                             }
                         }
                         if (key == null) {
@@ -5274,12 +5383,20 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                // Prevent prototype pollution: read property value, use default if not present
+                                var keyIndex = key.index !== undefined ? key.index : 0;
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    // Prevent prototype pollution for offset and from properties
+                                    var keyFrom = key.from !== undefined ? key.from : 0;
+                                    var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                                    key = keyOffset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                // Prevent prototype pollution for offset and from properties
+                                var keyFrom = key.from !== undefined ? key.from : 0;
+                                var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                                key = keyOffset;
                             }
                         }
                         if (key != null) {
@@ -5427,12 +5544,20 @@ function pathMapWithObserver(paths_, observer_, parent) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                // Prevent prototype pollution: read property value, use default if not present
+                                var keyIndex = key.index !== undefined ? key.index : 0;
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    // Prevent prototype pollution for offset and from properties
+                                    var keyFrom = key.from !== undefined ? key.from : 0;
+                                    var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                                    key = keyOffset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                // Prevent prototype pollution for offset and from properties
+                                var keyFrom = key.from !== undefined ? key.from : 0;
+                                var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                                key = keyOffset;
                             }
                         }
                         if (key == null) {
@@ -5450,12 +5575,20 @@ function pathMapWithObserver(paths_, observer_, parent) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                // Prevent prototype pollution: read property value, use default if not present
+                                var keyIndex = key.index !== undefined ? key.index : 0;
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    // Prevent prototype pollution for offset and from properties
+                                    var keyFrom = key.from !== undefined ? key.from : 0;
+                                    var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                                    key = keyOffset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                // Prevent prototype pollution for offset and from properties
+                                var keyFrom = key.from !== undefined ? key.from : 0;
+                                var keyOffset = key.offset !== undefined ? key.offset : keyFrom;
+                                key = keyOffset;
                             }
                         }
                         if (key != null) {
