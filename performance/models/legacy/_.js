@@ -1286,7 +1286,7 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                         key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                     }
                 }
-                if (key == null) {
+                if (key == null || !isSafeKey(key)) {
                     continue;
                 }
                 original[original.length = column] = key;
@@ -1303,9 +1303,12 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                         '$size': 0
                     }).__generation = context.__generation;
                 }
-                contextParent[key] = context = contextParent[key] || {
-                    '$size': 0
-                };
+                if (!contextParent[key]) {
+                    var newContext = Object.create(null);
+                    newContext['$size'] = 0;
+                    contextParent[key] = newContext;
+                }
+                context = contextParent[key];
                 context.__parent = contextParent;
                 context.__key = key;
                 while (Array.isArray(contextValue = (contextType // If the context is a sentinel, get its value.
@@ -1419,7 +1422,7 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                                 }
                                 if (column === last) {
                                     key = path[column];
-                                    if (key != null) {
+                                    if (key != null && isSafeKey(key)) {
                                         optimized[optimized.length = column + offset] = key;
                                         if ( // Put the message in the cache and migrate generation if needed.
                                             context && (contextParent[key] || {
@@ -1433,9 +1436,12 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                                                 '$size': 0
                                             }).__generation = context.__generation;
                                         }
-                                        contextParent[key] = context = contextParent[key] || {
-                                            '$size': 0
-                                        };
+                                        if (!contextParent[key]) {
+                                            var newContext$2 = Object.create(null);
+                                            newContext$2['$size'] = 0;
+                                            contextParent[key] = newContext$2;
+                                        }
+                                        context = contextParent[key];
                                         context.__parent = contextParent;
                                         context.__key = key;
                                     }
@@ -2058,7 +2064,7 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                             key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                         }
                     }
-                    if (key == null) {
+                    if (key == null || !isSafeKey(key)) {
                         continue;
                     }
                     original[original.length = column] = key;
@@ -2075,9 +2081,12 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                             '$size': 0
                         }).__generation = context.__generation;
                     }
-                    contextParent[key] = context = contextParent[key] || {
-                        '$size': 0
-                    };
+                    if (!contextParent[key]) {
+                        var newContext$3 = Object.create(null);
+                        newContext$3['$size'] = 0;
+                        contextParent[key] = newContext$3;
+                    }
+                    context = contextParent[key];
                     context.__parent = contextParent;
                     context.__key = key;
                     while (Array.isArray(contextValue = (contextType // If the context is a sentinel, get its value.
@@ -2123,7 +2132,7 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                                 while (true) {
                                     for (; column < last; ++column) {
                                         key = path[column];
-                                        if (key == null) {
+                                        if (key == null || !isSafeKey(key)) {
                                             continue;
                                         }
                                         optimized[optimized.length = column + offset] = key;
@@ -2139,9 +2148,12 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                                                 '$size': 0
                                             }).__generation = context.__generation;
                                         }
-                                        contextParent[key] = context = contextParent[key] || {
-                                            '$size': 0
-                                        };
+                                        if (!contextParent[key]) {
+                                            var newContext$4 = Object.create(null);
+                                            newContext$4['$size'] = 0;
+                                            contextParent[key] = newContext$4;
+                                        }
+                                        context = contextParent[key];
                                         context.__parent = contextParent;
                                         context.__key = key;
                                         while (Array.isArray(contextValue = (contextType // If the context is a sentinel, get its value.
@@ -2207,7 +2219,7 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                                     }
                                     if (column === last) {
                                         key = path[column];
-                                        if (key != null) {
+                                        if (key != null && isSafeKey(key)) {
                                             optimized[optimized.length = column + offset] = key;
                                             if ( // Put the message in the cache and migrate generation if needed.
                                                 context && (contextParent[key] || {
@@ -2221,9 +2233,12 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                                                     '$size': 0
                                                 }).__generation = context.__generation;
                                             }
-                                            contextParent[key] = context = contextParent[key] || {
-                                                '$size': 0
-                                            };
+                                            if (!contextParent[key]) {
+                                                var newContext$5 = Object.create(null);
+                                                newContext$5['$size'] = 0;
+                                                contextParent[key] = newContext$5;
+                                            }
+                                            context = contextParent[key];
                                             context.__parent = contextParent;
                                             context.__key = key;
                                         }
@@ -5400,6 +5415,18 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
     return Disposable.empty;
 }
 
+// Helper function to check if a key is safe from prototype pollution
+function isSafeKey(key) {
+    return key !== '__proto__' && key !== 'constructor' && key !== 'prototype';
+}
+
+// Helper function to create a safe object without prototype
+function createSafeObject() {
+    var obj = Object.create(null);
+    obj.__observers = [];
+    return obj;
+}
+
 function pathMapWithObserver(paths_, observer_, parent) {
     var self = this,
         root = self._root,
@@ -5408,9 +5435,7 @@ function pathMapWithObserver(paths_, observer_, parent) {
     paths = paths_;
     index = 0;
     length = paths.length;
-    observers = ((contexts = [])[-1] = context = parent || (parent = {
-        __observers: []
-    })).__observers;
+    observers = ((contexts = [])[-1] = context = parent || (parent = createSafeObject())).__observers;
     if (observer && observers.indexOf(observer) === -1) {
         observers[observers.length] = observer;
     }
@@ -5435,12 +5460,10 @@ function pathMapWithObserver(paths_, observer_, parent) {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
-                        if (key == null) {
+                        if (key == null || !isSafeKey(key)) {
                             continue;
                         }
-                        observers = (context = contextParent[key] || (contextParent[key] = {
-                            __observers: []
-                        })).__observers;
+                        observers = (context = contextParent[key] || (contextParent[key] = createSafeObject())).__observers;
                         if (observer && observers.indexOf(observer) === -1) {
                             observers[observers.length] = observer;
                         }
@@ -5458,10 +5481,8 @@ function pathMapWithObserver(paths_, observer_, parent) {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
-                        if (key != null) {
-                            observers = (context = contextParent[key] || (contextParent[key] = {
-                                __observers: []
-                            })).__observers;
+                        if (key != null && isSafeKey(key)) {
+                            observers = (context = contextParent[key] || (contextParent[key] = createSafeObject())).__observers;
                             if (observer && observers.indexOf(observer) === -1) {
                                 observers[observers.length] = observer;
                                 observer.count = (observer.count || 0) + 1;
@@ -5535,7 +5556,7 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
-                        if (key == null) {
+                        if (key == null || !isSafeKey(key)) {
                             continue;
                         }
                         observers = (context = contextParent[key]).__observers;
@@ -5560,7 +5581,7 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
-                        if (key != null) {
+                        if (key != null && isSafeKey(key)) {
                             observers = (context = contextParent[key]).__observers;
                             if (observer != null) {
                                 var a$3, i$3;
@@ -6131,7 +6152,7 @@ function createKey(list) {
 }
 
 function notPathMapInternalKeys(key) {
-    return key !== '__observers' && key !== '__pending' && key !== '__batchID';
+    return key !== '__observers' && key !== '__pending' && key !== '__batchID' && isSafeKey(key);
 }
 /**
  * Builds the set of collapsed
