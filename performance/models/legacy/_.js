@@ -10,6 +10,11 @@ var Observable = Rx.Observable,
     µSize = 0.25,
     MIN_SAFE_INTEGER = -Math.pow(2, 53) - 1;
 
+// Helper function to prevent prototype pollution
+function isSafeKey(key) {
+    return key !== '__proto__' && key !== 'constructor' && key !== 'prototype';
+}
+
 function PathEvaluator(maxSize, collectRatio, loader, cache, path, now, errorSelector) {
     if (loader != null && typeof loader === 'object') {
         this.loader = loader;
@@ -1303,9 +1308,15 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                         '$size': 0
                     }).__generation = context.__generation;
                 }
-                contextParent[key] = context = contextParent[key] || {
-                    '$size': 0
-                };
+                if (isSafeKey(key)) {
+                    contextParent[key] = context = contextParent[key] || {
+                        '$size': 0
+                    };
+                } else {
+                    context = contextParent[key] || {
+                        '$size': 0
+                    };
+                }
                 context.__parent = contextParent;
                 context.__key = key;
                 while (Array.isArray(contextValue = (contextType // If the context is a sentinel, get its value.
@@ -1433,9 +1444,15 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                                                 '$size': 0
                                             }).__generation = context.__generation;
                                         }
-                                        contextParent[key] = context = contextParent[key] || {
-                                            '$size': 0
-                                        };
+                                        if (isSafeKey(key)) {
+                                            contextParent[key] = context = contextParent[key] || {
+                                                '$size': 0
+                                            };
+                                        } else {
+                                            context = contextParent[key] || {
+                                                '$size': 0
+                                            };
+                                        }
                                         context.__parent = contextParent;
                                         context.__key = key;
                                     }
@@ -1735,7 +1752,9 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                                 message && !context.__generation !== void 0 && (message.__generation === void 0 || context.__generation > message.__generation)) {
                                 message.__generation = context.__generation;
                             }
-                            contextParent[key] = context = message;
+                            if (isSafeKey(key)) {
+                                contextParent[key] = context = message;
+                            }
                             break inserting;
                         }
                     context.__parent = contextParent;
@@ -2075,9 +2094,15 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                             '$size': 0
                         }).__generation = context.__generation;
                     }
-                    contextParent[key] = context = contextParent[key] || {
-                        '$size': 0
-                    };
+                    if (isSafeKey(key)) {
+                        contextParent[key] = context = contextParent[key] || {
+                            '$size': 0
+                        };
+                    } else {
+                        context = contextParent[key] || {
+                            '$size': 0
+                        };
+                    }
                     context.__parent = contextParent;
                     context.__key = key;
                     while (Array.isArray(contextValue = (contextType // If the context is a sentinel, get its value.
@@ -2139,9 +2164,15 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                                                 '$size': 0
                                             }).__generation = context.__generation;
                                         }
-                                        contextParent[key] = context = contextParent[key] || {
-                                            '$size': 0
-                                        };
+                                        if (isSafeKey(key)) {
+                                            contextParent[key] = context = contextParent[key] || {
+                                                '$size': 0
+                                            };
+                                        } else {
+                                            context = contextParent[key] || {
+                                                '$size': 0
+                                            };
+                                        }
                                         context.__parent = contextParent;
                                         context.__key = key;
                                         while (Array.isArray(contextValue = (contextType // If the context is a sentinel, get its value.
@@ -2221,9 +2252,15 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                                                     '$size': 0
                                                 }).__generation = context.__generation;
                                             }
-                                            contextParent[key] = context = contextParent[key] || {
-                                                '$size': 0
-                                            };
+                                            if (isSafeKey(key)) {
+                                                contextParent[key] = context = contextParent[key] || {
+                                                    '$size': 0
+                                                };
+                                            } else {
+                                                context = contextParent[key] || {
+                                                    '$size': 0
+                                                };
+                                            }
                                             context.__parent = contextParent;
                                             context.__key = key;
                                         }
@@ -2523,7 +2560,9 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                                     message && !context.__generation !== void 0 && (message.__generation === void 0 || context.__generation > message.__generation)) {
                                     message.__generation = context.__generation;
                                 }
-                                contextParent[key] = context = message;
+                                if (isSafeKey(key)) {
+                                    contextParent[key] = context = message;
+                                }
                                 break inserting;
                             }
                         context.__parent = contextParent;
@@ -3182,7 +3221,9 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                                         message && !context.__generation !== void 0 && (message.__generation === void 0 || context.__generation > message.__generation)) {
                                         message.__generation = context.__generation;
                                     }
-                                    contextParent[key] = context = message;
+                                    if (isSafeKey(key)) {
+                                        contextParent[key] = context = message;
+                                    }
                                     break inserting;
                                 }
                         }
@@ -3541,7 +3582,9 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                                                         message && !context.__generation !== void 0 && (message.__generation === void 0 || context.__generation > message.__generation)) {
                                                         message.__generation = context.__generation;
                                                     }
-                                                    contextParent[key] = context = message;
+                                                    if (isSafeKey(key)) {
+                                                        contextParent[key] = context = message;
+                                                    }
                                                     break inserting;
                                                 }
                                         }
@@ -3917,7 +3960,9 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                                                             message && !context.__generation !== void 0 && (message.__generation === void 0 || context.__generation > message.__generation)) {
                                                             message.__generation = context.__generation;
                                                         }
-                                                        contextParent[key] = context = message;
+                                                        if (isSafeKey(key)) {
+                                                            contextParent[key] = context = message;
+                                                        }
                                                         break inserting;
                                                     }
                                             }
@@ -4295,7 +4340,9 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                                         message && !context.__generation !== void 0 && (message.__generation === void 0 || context.__generation > message.__generation)) {
                                         message.__generation = context.__generation;
                                     }
-                                    contextParent[key] = context = message;
+                                    if (isSafeKey(key)) {
+                                        contextParent[key] = context = message;
+                                    }
                                     break inserting;
                                 }
                             context.__parent = contextParent;
@@ -5438,9 +5485,15 @@ function pathMapWithObserver(paths_, observer_, parent) {
                         if (key == null) {
                             continue;
                         }
-                        observers = (context = contextParent[key] || (contextParent[key] = {
-                            __observers: []
-                        })).__observers;
+                        if (isSafeKey(key)) {
+                            observers = (context = contextParent[key] || (contextParent[key] = {
+                                __observers: []
+                            })).__observers;
+                        } else {
+                            observers = (context = contextParent[key] || {
+                                __observers: []
+                            }).__observers;
+                        }
                         if (observer && observers.indexOf(observer) === -1) {
                             observers[observers.length] = observer;
                         }
@@ -5459,9 +5512,15 @@ function pathMapWithObserver(paths_, observer_, parent) {
                             }
                         }
                         if (key != null) {
-                            observers = (context = contextParent[key] || (contextParent[key] = {
-                                __observers: []
-                            })).__observers;
+                            if (isSafeKey(key)) {
+                                observers = (context = contextParent[key] || (contextParent[key] = {
+                                    __observers: []
+                                })).__observers;
+                            } else {
+                                observers = (context = contextParent[key] || {
+                                    __observers: []
+                                }).__observers;
+                            }
                             if (observer && observers.indexOf(observer) === -1) {
                                 observers[observers.length] = observer;
                                 observer.count = (observer.count || 0) + 1;
