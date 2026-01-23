@@ -103,4 +103,73 @@ describe("findPartialIntersections", () => {
             ]);
         });
     });
+
+    describe("prototype pollution prevention", () => {
+        it("does not access __proto__ during tree traversal", () => {
+            const requestedPath = ["__proto__", "polluted"];
+            const optimizedPath = ["__proto__", "polluted"];
+            const pathTree = { someKey: { value: null } };
+
+            // Should not find a match even though Object.prototype.__proto__ exists
+            expect(findPartialIntersections(requestedPath, optimizedPath, pathTree)).toEqual([
+                [],
+                [optimizedPath],
+                [requestedPath]
+            ]);
+        });
+
+        it("does not access constructor during tree traversal", () => {
+            const requestedPath = ["constructor", "prototype"];
+            const optimizedPath = ["constructor", "prototype"];
+            const pathTree = { someKey: { value: null } };
+
+            // Should not find a match even though Object.prototype.constructor exists
+            expect(findPartialIntersections(requestedPath, optimizedPath, pathTree)).toEqual([
+                [],
+                [optimizedPath],
+                [requestedPath]
+            ]);
+        });
+
+        it("does not access prototype during tree traversal", () => {
+            const requestedPath = ["prototype", "polluted"];
+            const optimizedPath = ["prototype", "polluted"];
+            const pathTree = { someKey: { value: null } };
+
+            // Should not find a match for prototype key
+            expect(findPartialIntersections(requestedPath, optimizedPath, pathTree)).toEqual([
+                [],
+                [optimizedPath],
+                [requestedPath]
+            ]);
+        });
+
+        it("handles legitimate __proto__ as an own property key", () => {
+            const requestedPath = ["data", "__proto__", "value"];
+            const optimizedPath = ["data", "__proto__", "value"];
+            // Explicitly set __proto__ as an own property
+            const pathTree = { data: Object.create(null) };
+            pathTree.data["__proto__"] = { value: null };
+
+            // Should find the match since __proto__ is an own property
+            expect(findPartialIntersections(requestedPath, optimizedPath, pathTree)).toEqual([
+                [requestedPath],
+                [],
+                []
+            ]);
+        });
+
+        it("treats paths with prototype-special keys as complement when not own properties", () => {
+            const partialMatchingPath = ["videos", ["__proto__", 1], "title"];
+            const paths = [partialMatchingPath];
+            const pathTree = { 3: { videos: { 1: { title: null } } } };
+
+            // __proto__ should not match, only legitimate key "1" should match
+            expect(complement(paths, paths, pathTree)).toEqual({
+                intersection: [["videos", 1, "title"]],
+                optimizedComplement: [["videos", "__proto__", "title"]],
+                requestedComplement: [["videos", "__proto__", "title"]]
+            });
+        });
+    });
 });
