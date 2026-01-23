@@ -5438,6 +5438,10 @@ function pathMapWithObserver(paths_, observer_, parent) {
                         if (key == null) {
                             continue;
                         }
+                        // Prevent prototype pollution
+                        if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+                            continue;
+                        }
                         observers = (context = contextParent[key] || (contextParent[key] = {
                             __observers: []
                         })).__observers;
@@ -5459,6 +5463,10 @@ function pathMapWithObserver(paths_, observer_, parent) {
                             }
                         }
                         if (key != null) {
+                            // Prevent prototype pollution
+                            if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+                                break building_pathmap;
+                            }
                             observers = (context = contextParent[key] || (contextParent[key] = {
                                 __observers: []
                             })).__observers;
@@ -5538,6 +5546,10 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                         if (key == null) {
                             continue;
                         }
+                        // Prevent prototype pollution
+                        if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+                            continue;
+                        }
                         observers = (context = contextParent[key]).__observers;
                         if (observer != null) {
                             var a$2, i$2;
@@ -5561,6 +5573,10 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                             }
                         }
                         if (key != null) {
+                            // Prevent prototype pollution
+                            if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+                                break building_pathmap;
+                            }
                             observers = (context = contextParent[key]).__observers;
                             if (observer != null) {
                                 var a$3, i$3;
@@ -6002,7 +6018,15 @@ function serialize(cache) {
     return message;
 
     function internalKeys(x) {
-        return x[0] !== '_' || x[1] !== '_';
+        // Block keys starting with "__" and dangerous prototype pollution keys
+        if (x[0] === '_' && x[1] === '_') {
+            return false;
+        }
+        // Prevent prototype pollution by blocking dangerous keys
+        if (x === '__proto__' || x === 'constructor' || x === 'prototype') {
+            return false;
+        }
+        return true;
     }
 }
 
@@ -6040,7 +6064,15 @@ function deserialize(cache) {
     return this;
 
     function internalKeys(x) {
-        return x[0] !== '$' && (x[0] !== '_' || x[1] !== '_');
+        // Block keys starting with "$" or "__"
+        if (x[0] === '$' || (x[0] === '_' && x[1] === '_')) {
+            return false;
+        }
+        // Prevent prototype pollution by blocking dangerous keys
+        if (x === '__proto__' || x === 'constructor' || x === 'prototype') {
+            return false;
+        }
+        return true;
     }
 }
 
@@ -6131,7 +6163,15 @@ function createKey(list) {
 }
 
 function notPathMapInternalKeys(key) {
-    return key !== '__observers' && key !== '__pending' && key !== '__batchID';
+    // Block specific internal keys
+    if (key === '__observers' || key === '__pending' || key === '__batchID') {
+        return false;
+    }
+    // Prevent prototype pollution by blocking dangerous keys
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+        return false;
+    }
+    return true;
 }
 /**
  * Builds the set of collapsed

@@ -405,6 +405,11 @@ function readyNode(branch, key, observer) {
         return branch;
     }
 
+    // Prevent prototype pollution
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+        return branch;
+    }
+
     if (!branch[key]) {
         branch[key] = {__observers: []};
     }
@@ -514,11 +519,15 @@ function buildQueries(root) {
 }
 
 function notPathMapInternalKeys(key) {
-    return (
-        key !== "__observers" &&
-        key !== "__pending" &&
-        key !== "__batchID"
-        );
+    // Block specific internal keys
+    if (key === "__observers" || key === "__pending" || key === "__batchID") {
+        return false;
+    }
+    // Prevent prototype pollution by blocking dangerous keys
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -1057,11 +1066,20 @@ function appendBoundPathToArgument(boundPath, argument, type) {
         var prefix = {};
         var curr = prefix;
         for (var i = 0, len = boundPath.length; i < len - 1; i++) {
-            curr[boundPath[i]] = {};
-            curr = curr[boundPath[i]];
+            var key = boundPath[i];
+            // Prevent prototype pollution
+            if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+                continue;
+            }
+            curr[key] = {};
+            curr = curr[key];
         }
 
-        prefix[boundPath[i]] = argument;
+        var lastKey = boundPath[i];
+        // Prevent prototype pollution
+        if (lastKey !== '__proto__' && lastKey !== 'constructor' && lastKey !== 'prototype') {
+            prefix[lastKey] = argument;
+        }
         return prefix;
     }
 
@@ -1389,10 +1407,15 @@ function simplePathToMap(path, seed) {
     seed = seed || {};
     var curr = seed;
     for (var i = 0, len = path.length; i < len; i++) {
-        if (curr[path[i]]) {
-            curr = curr[path[i]];
+        var key = path[i];
+        // Prevent prototype pollution
+        if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+            continue;
+        }
+        if (curr[key]) {
+            curr = curr[key];
         } else {
-            curr = curr[path[i]] = {};
+            curr = curr[key] = {};
         }
     }
     return seed;
@@ -1411,6 +1434,10 @@ function pathToMap(path, seed, depth) {
     if (typeof curr === 'object') {
         if (Array.isArray(curr)) {
             curr.forEach(function(v) {
+                // Prevent prototype pollution
+                if (v === '__proto__' || v === 'constructor' || v === 'prototype') {
+                    return;
+                }
                 if (!seed[v]) {
                     seed[v] = {};
                 }
@@ -1422,6 +1449,11 @@ function pathToMap(path, seed, depth) {
             var from = curr.from || 0;
             var to = curr.to >= 0 ? curr.to : curr.length;
             for (var i = from; i <= to; i++) {
+                var key = String(i);
+                // Prevent prototype pollution
+                if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+                    continue;
+                }
                 if (!seed[i]) {
                     seed[i] = {};
                 }
@@ -1431,6 +1463,10 @@ function pathToMap(path, seed, depth) {
             }
         }
     } else {
+        // Prevent prototype pollution
+        if (curr === '__proto__' || curr === 'constructor' || curr === 'prototype') {
+            return seed;
+        }
         if (depth < path.length) {
             if (!seed[curr]) {
                 seed[curr] = {};
