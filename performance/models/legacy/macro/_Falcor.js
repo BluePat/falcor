@@ -405,6 +405,11 @@ function readyNode(branch, key, observer) {
         return branch;
     }
 
+    // Prevent prototype pollution
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+        return branch;
+    }
+
     if (!branch[key]) {
         branch[key] = {__observers: []};
     }
