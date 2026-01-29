@@ -10,6 +10,22 @@ var Observable = Rx.Observable,
     µSize = 0.25,
     MIN_SAFE_INTEGER = -Math.pow(2, 53) - 1;
 
+// Helper function to check if an object is safe to mutate (not a prototype)
+function isSafeToMutate(obj) {
+    if (obj == null || typeof obj !== 'object') {
+        return false;
+    }
+    // Check if the object is a prototype
+    return obj !== Object.prototype &&
+           obj !== Array.prototype &&
+           obj !== Function.prototype &&
+           obj !== String.prototype &&
+           obj !== Number.prototype &&
+           obj !== Boolean.prototype &&
+           obj !== Date.prototype &&
+           obj !== RegExp.prototype;
+}
+
 function PathEvaluator(maxSize, collectRatio, loader, cache, path, now, errorSelector) {
     if (loader != null && typeof loader === 'object') {
         this.loader = loader;
@@ -316,12 +332,24 @@ function getPath(path_, cache, parent, bound) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        if (isSafeToMutate(key)) {
+                            key = key[key.index || (key.index = 0)];
+                        } else {
+                            key = key[key.index || 0];
+                        }
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            if (isSafeToMutate(key)) {
+                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            } else {
+                                key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                            }
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        if (isSafeToMutate(key)) {
+                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        } else {
+                            key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                        }
                     }
                 }
                 if (key == null) {
@@ -550,12 +578,24 @@ function getPath(path_, cache, parent, bound) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        if (isSafeToMutate(key)) {
+                            key = key[key.index || (key.index = 0)];
+                        } else {
+                            key = key[key.index || 0];
+                        }
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            if (isSafeToMutate(key)) {
+                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            } else {
+                                key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                            }
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        if (isSafeToMutate(key)) {
+                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        } else {
+                            key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                        }
                     }
                 }
                 original[original.length = column] = key;
@@ -683,7 +723,11 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
     contexts[-1] = contextParent;
     for (; index < length; paths.index = ++index) {
         path = paths[index];
-        column = path.index || (path.index = 0);
+        if (isSafeToMutate(path)) {
+            column = path.index || (path.index = 0);
+        } else {
+            column = path.index || 0;
+        }
         last = path.length - 1;
         refs[-1] = path;
         crossed = [];
@@ -711,12 +755,24 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                if (isSafeToMutate(key)) {
+                                    key = key[key.index || (key.index = 0)];
+                                } else {
+                                    key = key[key.index || 0];
+                                }
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    if (isSafeToMutate(key)) {
+                                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    } else {
+                                        key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                                    }
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                if (isSafeToMutate(key)) {
+                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                } else {
+                                    key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                                }
                             }
                         }
                         if (key == null) {
@@ -946,12 +1002,24 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                if (isSafeToMutate(key)) {
+                                    key = key[key.index || (key.index = 0)];
+                                } else {
+                                    key = key[key.index || 0];
+                                }
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    if (isSafeToMutate(key)) {
+                                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    } else {
+                                        key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                                    }
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                if (isSafeToMutate(key)) {
+                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                } else {
+                                    key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                                }
                             }
                         }
                         original[original.length = column] = key;
@@ -1174,17 +1242,27 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                     }
                     if ( // TODO: replace this with a faster Array check.
                         Array.isArray(key)) {
-                        if (++key.index === key.length) {
-                            key = key[key.index = 0];
-                            if (key == null || typeof key !== 'object') {
-                                continue ascending;
+                        if (isSafeToMutate(key)) {
+                            if (++key.index === key.length) {
+                                key = key[key.index = 0];
+                                if (key == null || typeof key !== 'object') {
+                                    continue ascending;
+                                }
+                            } else {
+                                break ascending;
                             }
                         } else {
-                            break ascending;
+                            // Cannot mutate prototype, skip iteration
+                            continue ascending;
                         }
                     }
-                    if (++key.offset > (key.to || (key.to = key.from + (key.length || 1) - 1))) {
-                        key.offset = key.from;
+                    if (isSafeToMutate(key)) {
+                        if (++key.offset > (key.to || (key.to = key.from + (key.length || 1) - 1))) {
+                            key.offset = key.from;
+                            continue ascending;
+                        }
+                    } else {
+                        // Cannot mutate prototype, skip iteration
                         continue ascending;
                     }
                     break ascending;
@@ -1278,12 +1356,24 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        if (isSafeToMutate(key)) {
+                            key = key[key.index || (key.index = 0)];
+                        } else {
+                            key = key[key.index || 0];
+                        }
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            if (isSafeToMutate(key)) {
+                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            } else {
+                                key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                            }
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        if (isSafeToMutate(key)) {
+                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        } else {
+                            key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                        }
                     }
                 }
                 if (key == null) {
@@ -1544,12 +1634,24 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        if (isSafeToMutate(key)) {
+                            key = key[key.index || (key.index = 0)];
+                        } else {
+                            key = key[key.index || 0];
+                        }
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            if (isSafeToMutate(key)) {
+                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            } else {
+                                key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                            }
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        if (isSafeToMutate(key)) {
+                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        } else {
+                            key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                        }
                     }
                 }
                 original[original.length = column] = key;
@@ -2036,7 +2138,11 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
         pbv = pbvs[index];
         path = pbv.path;
         message = pbv.value;
-        column = path.index || (path.index = 0);
+        if (isSafeToMutate(path)) {
+            column = path.index || (path.index = 0);
+        } else {
+            column = path.index || 0;
+        }
         offset = 0;
         last = path.length - 1;
         contextParent = boundContext;
@@ -2050,12 +2156,24 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                     key = path[column];
                     if (key != null && typeof key === 'object') {
                         if (Array.isArray(key)) {
-                            key = key[key.index || (key.index = 0)];
+                            if (isSafeToMutate(key)) {
+                                key = key[key.index || (key.index = 0)];
+                            } else {
+                                key = key[key.index || 0];
+                            }
                             if (key != null && typeof key === 'object') {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                if (isSafeToMutate(key)) {
+                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                } else {
+                                    key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                                }
                             }
                         } else {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            if (isSafeToMutate(key)) {
+                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            } else {
+                                key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                            }
                         }
                     }
                     if (key == null) {
@@ -2332,12 +2450,24 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                     key = path[column];
                     if (key != null && typeof key === 'object') {
                         if (Array.isArray(key)) {
-                            key = key[key.index || (key.index = 0)];
+                            if (isSafeToMutate(key)) {
+                                key = key[key.index || (key.index = 0)];
+                            } else {
+                                key = key[key.index || 0];
+                            }
                             if (key != null && typeof key === 'object') {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                if (isSafeToMutate(key)) {
+                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                } else {
+                                    key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                                }
                             }
                         } else {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            if (isSafeToMutate(key)) {
+                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            } else {
+                                key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                            }
                         }
                     }
                     original[original.length = column] = key;
@@ -2897,15 +3027,24 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
         };
         batchedPathMap = self._pathMapWithObserver(paths, observer, batchedPathMap);
     }
-    index = pbf.index || (pbf.index = 0);
+    if (isSafeToMutate(pbf)) {
+        index = pbf.index || (pbf.index = 0);
+    } else {
+        index = pbf.index || 0;
+    }
     length = paths.length;
     contexts[-1] = contextParent;
     messages[-1] = messageParent;
     batchedPathMaps[-1] = batchedPathMap;
     for (; index < length; paths.index = ++index) {
         path = paths[index];
-        column = path.index || (path.index = 0);
-        offset = path.offset || (path.offset = 0);
+        if (isSafeToMutate(path)) {
+            column = path.index || (path.index = 0);
+            offset = path.offset || (path.offset = 0);
+        } else {
+            column = path.index || 0;
+            offset = path.offset || 0;
+        }
         last = path.length - 1;
         depth = -1;
         refs[-1] = path;
@@ -2936,12 +3075,24 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                if (isSafeToMutate(key)) {
+                                    key = key[key.index || (key.index = 0)];
+                                } else {
+                                    key = key[key.index || 0];
+                                }
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    if (isSafeToMutate(key)) {
+                                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    } else {
+                                        key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                                    }
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                if (isSafeToMutate(key)) {
+                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                } else {
+                                    key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                                }
                             }
                         }
                         if (key == null) {
@@ -4102,12 +4253,24 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                if (isSafeToMutate(key)) {
+                                    key = key[key.index || (key.index = 0)];
+                                } else {
+                                    key = key[key.index || 0];
+                                }
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    if (isSafeToMutate(key)) {
+                                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    } else {
+                                        key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                                    }
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                if (isSafeToMutate(key)) {
+                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                } else {
+                                    key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                                }
                             }
                         }
                         original[original.length = column] = key;
@@ -4559,17 +4722,27 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                     }
                     if ( // TODO: replace this with a faster Array check.
                         Array.isArray(key)) {
-                        if (++key.index === key.length) {
-                            key = key[key.index = 0];
-                            if (key == null || typeof key !== 'object') {
-                                continue ascending;
+                        if (isSafeToMutate(key)) {
+                            if (++key.index === key.length) {
+                                key = key[key.index = 0];
+                                if (key == null || typeof key !== 'object') {
+                                    continue ascending;
+                                }
+                            } else {
+                                break ascending;
                             }
                         } else {
-                            break ascending;
+                            // Cannot mutate prototype, skip iteration
+                            continue ascending;
                         }
                     }
-                    if (++key.offset > (key.to || (key.to = key.from + (key.length || 1) - 1))) {
-                        key.offset = key.from;
+                    if (isSafeToMutate(key)) {
+                        if (++key.offset > (key.to || (key.to = key.from + (key.length || 1) - 1))) {
+                            key.offset = key.from;
+                            continue ascending;
+                        }
+                    } else {
+                        // Cannot mutate prototype, skip iteration
                         continue ascending;
                     }
                     break ascending;
@@ -4739,12 +4912,24 @@ function invalidatePath(path_, cache, parent, bound) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        if (isSafeToMutate(key)) {
+                            key = key[key.index || (key.index = 0)];
+                        } else {
+                            key = key[key.index || 0];
+                        }
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            if (isSafeToMutate(key)) {
+                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            } else {
+                                key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                            }
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        if (isSafeToMutate(key)) {
+                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        } else {
+                            key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                        }
                     }
                 }
                 if (key == null) {
@@ -4922,12 +5107,24 @@ function invalidatePath(path_, cache, parent, bound) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        if (isSafeToMutate(key)) {
+                            key = key[key.index || (key.index = 0)];
+                        } else {
+                            key = key[key.index || 0];
+                        }
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            if (isSafeToMutate(key)) {
+                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            } else {
+                                key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                            }
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        if (isSafeToMutate(key)) {
+                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        } else {
+                            key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                        }
                     }
                 }
                 if (key != null) {
@@ -5075,8 +5272,13 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
     contexts[-1] = contextParent;
     for (; index < length; paths.index = ++index) {
         path = paths[index];
-        column = path.index || (path.index = 0);
-        offset = path.offset || (path.offset = 0);
+        if (isSafeToMutate(path)) {
+            column = path.index || (path.index = 0);
+            offset = path.offset || (path.offset = 0);
+        } else {
+            column = path.index || 0;
+            offset = path.offset || 0;
+        }
         last = path.length - 1;
         depth = -1;
         refs[-1] = path;
@@ -5091,12 +5293,24 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                if (isSafeToMutate(key)) {
+                                    key = key[key.index || (key.index = 0)];
+                                } else {
+                                    key = key[key.index || 0];
+                                }
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    if (isSafeToMutate(key)) {
+                                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    } else {
+                                        key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                                    }
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                if (isSafeToMutate(key)) {
+                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                } else {
+                                    key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                                }
                             }
                         }
                         if (key == null) {
@@ -5274,12 +5488,24 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                if (isSafeToMutate(key)) {
+                                    key = key[key.index || (key.index = 0)];
+                                } else {
+                                    key = key[key.index || 0];
+                                }
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    if (isSafeToMutate(key)) {
+                                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    } else {
+                                        key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                                    }
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                if (isSafeToMutate(key)) {
+                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                } else {
+                                    key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                                }
                             }
                         }
                         if (key != null) {
@@ -5374,17 +5600,27 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                     }
                     if ( // TODO: replace this with a faster Array check.
                         Array.isArray(key)) {
-                        if (++key.index === key.length) {
-                            key = key[key.index = 0];
-                            if (key == null || typeof key !== 'object') {
-                                continue ascending;
+                        if (isSafeToMutate(key)) {
+                            if (++key.index === key.length) {
+                                key = key[key.index = 0];
+                                if (key == null || typeof key !== 'object') {
+                                    continue ascending;
+                                }
+                            } else {
+                                break ascending;
                             }
                         } else {
-                            break ascending;
+                            // Cannot mutate prototype, skip iteration
+                            continue ascending;
                         }
                     }
-                    if (++key.offset > (key.to || (key.to = key.from + (key.length || 1) - 1))) {
-                        key.offset = key.from;
+                    if (isSafeToMutate(key)) {
+                        if (++key.offset > (key.to || (key.to = key.from + (key.length || 1) - 1))) {
+                            key.offset = key.from;
+                            continue ascending;
+                        }
+                    } else {
+                        // Cannot mutate prototype, skip iteration
                         continue ascending;
                     }
                     break ascending;
@@ -5427,12 +5663,24 @@ function pathMapWithObserver(paths_, observer_, parent) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                if (isSafeToMutate(key)) {
+                                    key = key[key.index || (key.index = 0)];
+                                } else {
+                                    key = key[key.index || 0];
+                                }
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    if (isSafeToMutate(key)) {
+                                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    } else {
+                                        key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                                    }
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                if (isSafeToMutate(key)) {
+                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                } else {
+                                    key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                                }
                             }
                         }
                         if (key == null) {
@@ -5450,12 +5698,24 @@ function pathMapWithObserver(paths_, observer_, parent) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                if (isSafeToMutate(key)) {
+                                    key = key[key.index || (key.index = 0)];
+                                } else {
+                                    key = key[key.index || 0];
+                                }
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    if (isSafeToMutate(key)) {
+                                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    } else {
+                                        key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                                    }
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                if (isSafeToMutate(key)) {
+                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                } else {
+                                    key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                                }
                             }
                         }
                         if (key != null) {
@@ -5478,17 +5738,27 @@ function pathMapWithObserver(paths_, observer_, parent) {
                     }
                     if ( // TODO: replace this with a faster Array check.
                         Array.isArray(key)) {
-                        if (++key.index === key.length) {
-                            key = key[key.index = 0];
-                            if (key == null || typeof key !== 'object') {
-                                continue ascending;
+                        if (isSafeToMutate(key)) {
+                            if (++key.index === key.length) {
+                                key = key[key.index = 0];
+                                if (key == null || typeof key !== 'object') {
+                                    continue ascending;
+                                }
+                            } else {
+                                break ascending;
                             }
                         } else {
-                            break ascending;
+                            // Cannot mutate prototype, skip iteration
+                            continue ascending;
                         }
                     }
-                    if (++key.offset > (key.to || (key.to = key.from + (key.length || 1) - 1))) {
-                        key.offset = key.from;
+                    if (isSafeToMutate(key)) {
+                        if (++key.offset > (key.to || (key.to = key.from + (key.length || 1) - 1))) {
+                            key.offset = key.from;
+                            continue ascending;
+                        }
+                    } else {
+                        // Cannot mutate prototype, skip iteration
                         continue ascending;
                     }
                     break ascending;
@@ -5527,12 +5797,24 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                if (isSafeToMutate(key)) {
+                                    key = key[key.index || (key.index = 0)];
+                                } else {
+                                    key = key[key.index || 0];
+                                }
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    if (isSafeToMutate(key)) {
+                                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    } else {
+                                        key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                                    }
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                if (isSafeToMutate(key)) {
+                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                } else {
+                                    key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                                }
                             }
                         }
                         if (key == null) {
@@ -5552,12 +5834,24 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                if (isSafeToMutate(key)) {
+                                    key = key[key.index || (key.index = 0)];
+                                } else {
+                                    key = key[key.index || 0];
+                                }
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    if (isSafeToMutate(key)) {
+                                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    } else {
+                                        key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                                    }
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                if (isSafeToMutate(key)) {
+                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                } else {
+                                    key = key.offset !== void 0 ? key.offset : (key.from !== void 0 ? key.from : 0);
+                                }
                             }
                         }
                         if (key != null) {
@@ -5582,17 +5876,27 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                     }
                     if ( // TODO: replace this with a faster Array check.
                         Array.isArray(key)) {
-                        if (++key.index === key.length) {
-                            key = key[key.index = 0];
-                            if (key == null || typeof key !== 'object') {
-                                continue ascending;
+                        if (isSafeToMutate(key)) {
+                            if (++key.index === key.length) {
+                                key = key[key.index = 0];
+                                if (key == null || typeof key !== 'object') {
+                                    continue ascending;
+                                }
+                            } else {
+                                break ascending;
                             }
                         } else {
-                            break ascending;
+                            // Cannot mutate prototype, skip iteration
+                            continue ascending;
                         }
                     }
-                    if (++key.offset > (key.to || (key.to = key.from + (key.length || 1) - 1))) {
-                        key.offset = key.from;
+                    if (isSafeToMutate(key)) {
+                        if (++key.offset > (key.to || (key.to = key.from + (key.length || 1) - 1))) {
+                            key.offset = key.from;
+                            continue ascending;
+                        }
+                    } else {
+                        // Cannot mutate prototype, skip iteration
                         continue ascending;
                     }
                     break ascending;
