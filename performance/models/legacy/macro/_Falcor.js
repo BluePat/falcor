@@ -405,6 +405,11 @@ function readyNode(branch, key, observer) {
         return branch;
     }
 
+    // Prevent prototype pollution
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+        return branch;
+    }
+
     if (!branch[key]) {
         branch[key] = {__observers: []};
     }
@@ -515,6 +520,9 @@ function buildQueries(root) {
 
 function notPathMapInternalKeys(key) {
     return (
+        key !== "__proto__" &&
+        key !== "constructor" &&
+        key !== "prototype" &&
         key !== "__observers" &&
         key !== "__pending" &&
         key !== "__batchID"
@@ -1291,7 +1299,9 @@ Model.prototype = {
         var clone = new Model();
         
         Object.keys(self).forEach(function(key) {
-            clone[key] = self[key];
+            if (key !== '__proto__' && key !== 'constructor' && key !== 'prototype') {
+                clone[key] = self[key];
+            }
         });
         
         Array.prototype.slice.call(arguments).forEach(function(tuple) {
