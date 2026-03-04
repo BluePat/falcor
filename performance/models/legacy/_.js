@@ -6002,7 +6002,8 @@ function serialize(cache) {
     return message;
 
     function internalKeys(x) {
-        return x[0] !== '_' || x[1] !== '_';
+        return (x[0] !== '_' || x[1] !== '_') && 
+               x !== 'constructor' && x !== 'prototype' && x !== '__proto__';
     }
 }
 
@@ -6040,7 +6041,8 @@ function deserialize(cache) {
     return this;
 
     function internalKeys(x) {
-        return x[0] !== '$' && (x[0] !== '_' || x[1] !== '_');
+        return x[0] !== '$' && (x[0] !== '_' || x[1] !== '_') && 
+               x !== 'constructor' && x !== 'prototype' && x !== '__proto__';
     }
 }
 
@@ -6131,7 +6133,8 @@ function createKey(list) {
 }
 
 function notPathMapInternalKeys(key) {
-    return key !== '__observers' && key !== '__pending' && key !== '__batchID';
+    return key !== '__observers' && key !== '__pending' && key !== '__batchID' && 
+           key !== 'constructor' && key !== 'prototype' && key !== '__proto__';
 }
 /**
  * Builds the set of collapsed
