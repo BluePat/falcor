@@ -103,4 +103,58 @@ describe("findPartialIntersections", () => {
             ]);
         });
     });
+
+    describe("prototype pollution prevention", () => {
+        it("blocks access to __proto__ in path", () => {
+            const requestedPath = ["__proto__", "polluted"];
+            const optimizedPath = ["__proto__", "polluted"];
+            const pathTree = { __proto__: { polluted: null } };
+
+            // Should not find anything and return complement
+            expect(findPartialIntersections(requestedPath, optimizedPath, pathTree)).toEqual([
+                [],
+                [optimizedPath],
+                [requestedPath]
+            ]);
+        });
+
+        it("blocks access to constructor in path", () => {
+            const requestedPath = ["constructor", "prototype"];
+            const optimizedPath = ["constructor", "prototype"];
+            const pathTree = { constructor: { prototype: null } };
+
+            // Should not find anything and return complement
+            expect(findPartialIntersections(requestedPath, optimizedPath, pathTree)).toEqual([
+                [],
+                [optimizedPath],
+                [requestedPath]
+            ]);
+        });
+
+        it("blocks access to prototype in path", () => {
+            const requestedPath = ["prototype", "value"];
+            const optimizedPath = ["prototype", "value"];
+            const pathTree = { prototype: { value: null } };
+
+            // Should not find anything and return complement
+            expect(findPartialIntersections(requestedPath, optimizedPath, pathTree)).toEqual([
+                [],
+                [optimizedPath],
+                [requestedPath]
+            ]);
+        });
+
+        it("prevents prototype pollution via range keys", () => {
+            const requestedPath = ["videos", ["__proto__", "constructor"], "title"];
+            const optimizedPath = ["videos", ["__proto__", "constructor"], "title"];
+            const pathTree = { videos: { __proto__: { title: null }, constructor: { title: null } } };
+
+            // Should not find any matches for __proto__ or constructor
+            expect(findPartialIntersections(requestedPath, optimizedPath, pathTree)).toEqual([
+                [],
+                [["videos", "__proto__", "title"], ["videos", "constructor", "title"]],
+                [["videos", "__proto__", "title"], ["videos", "constructor", "title"]]
+            ]);
+        });
+    });
 });
