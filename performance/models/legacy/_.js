@@ -117,6 +117,11 @@ function identity(x) {
     return x;
 }
 
+function isSafeKey(key) {
+    // Prevent prototype pollution by blocking dangerous property names
+    return key !== '__proto__' && key !== 'constructor' && key !== 'prototype';
+}
+
 function get() {
     var a;
     var i = -1,
@@ -316,7 +321,7 @@ function getPath(path_, cache, parent, bound) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        key = key[(key.index !== void 0 && isSafeKey(key.index)) ? key.index : (key.index = 0)];
                         if (key != null && typeof key === 'object') {
                             key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                         }
@@ -550,7 +555,7 @@ function getPath(path_, cache, parent, bound) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        key = key[(key.index !== void 0 && isSafeKey(key.index)) ? key.index : (key.index = 0)];
                         if (key != null && typeof key === 'object') {
                             key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                         }
@@ -711,7 +716,7 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                key = key[(key.index !== void 0 && isSafeKey(key.index)) ? key.index : (key.index = 0)];
                                 if (key != null && typeof key === 'object') {
                                     key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                                 }
@@ -946,7 +951,7 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                key = key[(key.index !== void 0 && isSafeKey(key.index)) ? key.index : (key.index = 0)];
                                 if (key != null && typeof key === 'object') {
                                     key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                                 }
@@ -1278,7 +1283,7 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        key = key[(key.index !== void 0 && isSafeKey(key.index)) ? key.index : (key.index = 0)];
                         if (key != null && typeof key === 'object') {
                             key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                         }
@@ -1544,7 +1549,7 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        key = key[(key.index !== void 0 && isSafeKey(key.index)) ? key.index : (key.index = 0)];
                         if (key != null && typeof key === 'object') {
                             key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                         }
@@ -2050,7 +2055,7 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                     key = path[column];
                     if (key != null && typeof key === 'object') {
                         if (Array.isArray(key)) {
-                            key = key[key.index || (key.index = 0)];
+                            key = key[(key.index !== void 0 && isSafeKey(key.index)) ? key.index : (key.index = 0)];
                             if (key != null && typeof key === 'object') {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
@@ -2332,7 +2337,7 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                     key = path[column];
                     if (key != null && typeof key === 'object') {
                         if (Array.isArray(key)) {
-                            key = key[key.index || (key.index = 0)];
+                            key = key[(key.index !== void 0 && isSafeKey(key.index)) ? key.index : (key.index = 0)];
                             if (key != null && typeof key === 'object') {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
@@ -2936,7 +2941,7 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                key = key[(key.index !== void 0 && isSafeKey(key.index)) ? key.index : (key.index = 0)];
                                 if (key != null && typeof key === 'object') {
                                     key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                                 }
@@ -4102,7 +4107,7 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                key = key[(key.index !== void 0 && isSafeKey(key.index)) ? key.index : (key.index = 0)];
                                 if (key != null && typeof key === 'object') {
                                     key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                                 }
@@ -4739,7 +4744,7 @@ function invalidatePath(path_, cache, parent, bound) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        key = key[(key.index !== void 0 && isSafeKey(key.index)) ? key.index : (key.index = 0)];
                         if (key != null && typeof key === 'object') {
                             key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                         }
@@ -4922,7 +4927,7 @@ function invalidatePath(path_, cache, parent, bound) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        key = key[(key.index !== void 0 && isSafeKey(key.index)) ? key.index : (key.index = 0)];
                         if (key != null && typeof key === 'object') {
                             key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                         }
@@ -5091,7 +5096,7 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                key = key[(key.index !== void 0 && isSafeKey(key.index)) ? key.index : (key.index = 0)];
                                 if (key != null && typeof key === 'object') {
                                     key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                                 }
@@ -5274,7 +5279,7 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                key = key[(key.index !== void 0 && isSafeKey(key.index)) ? key.index : (key.index = 0)];
                                 if (key != null && typeof key === 'object') {
                                     key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                                 }
@@ -5427,7 +5432,7 @@ function pathMapWithObserver(paths_, observer_, parent) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                key = key[(key.index !== void 0 && isSafeKey(key.index)) ? key.index : (key.index = 0)];
                                 if (key != null && typeof key === 'object') {
                                     key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                                 }
@@ -5450,7 +5455,7 @@ function pathMapWithObserver(paths_, observer_, parent) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                key = key[(key.index !== void 0 && isSafeKey(key.index)) ? key.index : (key.index = 0)];
                                 if (key != null && typeof key === 'object') {
                                     key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                                 }
@@ -5527,7 +5532,7 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                key = key[(key.index !== void 0 && isSafeKey(key.index)) ? key.index : (key.index = 0)];
                                 if (key != null && typeof key === 'object') {
                                     key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                                 }
@@ -5552,7 +5557,7 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                key = key[(key.index !== void 0 && isSafeKey(key.index)) ? key.index : (key.index = 0)];
                                 if (key != null && typeof key === 'object') {
                                     key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                                 }
