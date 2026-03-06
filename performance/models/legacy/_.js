@@ -6002,7 +6002,15 @@ function serialize(cache) {
     return message;
 
     function internalKeys(x) {
-        return x[0] !== '_' || x[1] !== '_';
+        // Block internal keys (starting with __) and prototype pollution keys
+        if (x[0] === '_' && x[1] === '_') {
+            return false;
+        }
+        // Block dangerous property names that could lead to prototype pollution
+        if (x === 'constructor' || x === 'prototype' || x === '__proto__') {
+            return false;
+        }
+        return true;
     }
 }
 
@@ -6040,7 +6048,18 @@ function deserialize(cache) {
     return this;
 
     function internalKeys(x) {
-        return x[0] !== '$' && (x[0] !== '_' || x[1] !== '_');
+        // Block internal keys (starting with $ or __) and prototype pollution keys
+        if (x[0] === '$') {
+            return false;
+        }
+        if (x[0] === '_' && x[1] === '_') {
+            return false;
+        }
+        // Block dangerous property names that could lead to prototype pollution
+        if (x === 'constructor' || x === 'prototype' || x === '__proto__') {
+            return false;
+        }
+        return true;
     }
 }
 
@@ -6065,9 +6084,12 @@ function flatten(obj) {
             keys.sort();
             for (keyCount = 0; keyCount < keys.length; keyCount++) {
                 key = keys[keyCount];
-                if (key[0] !== '_' || key[1] !== '_') {
-                    flattenedObject[key] = flatten(obj[key]);
+                // Block internal keys (starting with __) and prototype pollution keys
+                if ((key[0] === '_' && key[1] === '_') || 
+                    key === 'constructor' || key === 'prototype' || key === '__proto__') {
+                    continue;
                 }
+                flattenedObject[key] = flatten(obj[key]);
             }
             obj = Object.getPrototypeOf(obj);
         } while (obj != null);
@@ -6131,7 +6153,14 @@ function createKey(list) {
 }
 
 function notPathMapInternalKeys(key) {
-    return key !== '__observers' && key !== '__pending' && key !== '__batchID';
+    // Block internal keys and prototype pollution keys
+    if (key === '__observers' || key === '__pending' || key === '__batchID') {
+        return false;
+    }
+    if (key === 'constructor' || key === 'prototype' || key === '__proto__') {
+        return false;
+    }
+    return true;
 }
 /**
  * Builds the set of collapsed
