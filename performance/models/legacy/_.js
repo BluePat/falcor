@@ -5400,6 +5400,10 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
     return Disposable.empty;
 }
 
+function isSafeKey(key) {
+    return key !== '__proto__' && key !== 'constructor' && key !== 'prototype';
+}
+
 function pathMapWithObserver(paths_, observer_, parent) {
     var self = this,
         root = self._root,
@@ -5435,7 +5439,7 @@ function pathMapWithObserver(paths_, observer_, parent) {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
-                        if (key == null) {
+                        if (key == null || !isSafeKey(key)) {
                             continue;
                         }
                         observers = (context = contextParent[key] || (contextParent[key] = {
@@ -5458,7 +5462,7 @@ function pathMapWithObserver(paths_, observer_, parent) {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
-                        if (key != null) {
+                        if (key != null && isSafeKey(key)) {
                             observers = (context = contextParent[key] || (contextParent[key] = {
                                 __observers: []
                             })).__observers;
@@ -5535,7 +5539,7 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
-                        if (key == null) {
+                        if (key == null || !isSafeKey(key)) {
                             continue;
                         }
                         observers = (context = contextParent[key]).__observers;
@@ -5560,7 +5564,7 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
-                        if (key != null) {
+                        if (key != null && isSafeKey(key)) {
                             observers = (context = contextParent[key]).__observers;
                             if (observer != null) {
                                 var a$3, i$3;
