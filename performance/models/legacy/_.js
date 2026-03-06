@@ -117,6 +117,10 @@ function identity(x) {
     return x;
 }
 
+function isSafeKey(key) {
+    return key !== '__proto__' && key !== 'constructor' && key !== 'prototype';
+}
+
 function get() {
     var a;
     var i = -1,
@@ -325,6 +329,9 @@ function getPath(path_, cache, parent, bound) {
                     }
                 }
                 if (key == null) {
+                    continue;
+                }
+                if (!isSafeKey(key)) {
                     continue;
                 }
                 original[original.length = column] = key;
@@ -720,6 +727,9 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                             }
                         }
                         if (key == null) {
+                            continue;
+                        }
+                        if (!isSafeKey(key)) {
                             continue;
                         }
                         original[original.length = column] = key;
@@ -1287,6 +1297,9 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                     }
                 }
                 if (key == null) {
+                    continue;
+                }
+                if (!isSafeKey(key)) {
                     continue;
                 }
                 original[original.length = column] = key;
@@ -2059,6 +2072,9 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                         }
                     }
                     if (key == null) {
+                        continue;
+                    }
+                    if (!isSafeKey(key)) {
                         continue;
                     }
                     original[original.length = column] = key;
@@ -2945,6 +2961,9 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                             }
                         }
                         if (key == null) {
+                            continue;
+                        }
+                        if (!isSafeKey(key)) {
                             continue;
                         }
                         original[original.length = column] = key;
@@ -4750,6 +4769,9 @@ function invalidatePath(path_, cache, parent, bound) {
                 if (key == null) {
                     continue;
                 }
+                if (!isSafeKey(key)) {
+                    continue;
+                }
                 context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
                 while (Array.isArray(contextValue = (contextType // If the context is a sentinel, get its value.
                     // Otherwise, set contextValue to the context.
@@ -5100,6 +5122,9 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                             }
                         }
                         if (key == null) {
+                            continue;
+                        }
+                        if (!isSafeKey(key)) {
                             continue;
                         }
                         context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
