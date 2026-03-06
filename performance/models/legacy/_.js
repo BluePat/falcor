@@ -117,6 +117,10 @@ function identity(x) {
     return x;
 }
 
+function isDangerousKey(key) {
+    return key === '__proto__' || key === 'constructor' || key === 'prototype';
+}
+
 function get() {
     var a;
     var i = -1,
@@ -324,6 +328,10 @@ function getPath(path_, cache, parent, bound) {
                         key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                     }
                 }
+                // Prevent prototype pollution by rejecting dangerous keys
+                if (isDangerousKey(key)) {
+                    key = null;
+                }
                 if (key == null) {
                     continue;
                 }
@@ -373,6 +381,10 @@ function getPath(path_, cache, parent, bound) {
                             while (true) {
                                 for (; column < last; ++column) {
                                     key = path[column];
+                                    // Prevent prototype pollution by rejecting dangerous keys
+                                    if (isDangerousKey(key)) {
+                                        key = null;
+                                    }
                                     if (key == null) {
                                         continue;
                                     }
@@ -441,6 +453,10 @@ function getPath(path_, cache, parent, bound) {
                                 }
                                 if (column === last) {
                                     key = path[column];
+                                    // Prevent prototype pollution by rejecting dangerous keys
+                                    if (isDangerousKey(key)) {
+                                        key = null;
+                                    }
                                     if (key != null) {
                                         optimized[optimized.length = column + offset] = key;
                                         context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
@@ -719,6 +735,10 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
+                        // Prevent prototype pollution by rejecting dangerous keys
+                        if (isDangerousKey(key)) {
+                            key = null;
+                        }
                         if (key == null) {
                             continue;
                         }
@@ -769,6 +789,10 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                                     while (true) {
                                         for (; column < last; ++column) {
                                             key = path[column];
+                                            // Prevent prototype pollution by rejecting dangerous keys
+                                            if (isDangerousKey(key)) {
+                                                key = null;
+                                            }
                                             if (key == null) {
                                                 continue;
                                             }
@@ -837,6 +861,10 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                                         }
                                         if (column === last) {
                                             key = path[column];
+                                            // Prevent prototype pollution by rejecting dangerous keys
+                                            if (isDangerousKey(key)) {
+                                                key = null;
+                                            }
                                             if (key != null) {
                                                 optimized[optimized.length = column + offset] = key;
                                                 context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
@@ -1286,6 +1314,10 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                         key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                     }
                 }
+                // Prevent prototype pollution by rejecting dangerous keys
+                if (isDangerousKey(key)) {
+                    key = null;
+                }
                 if (key == null) {
                     continue;
                 }
@@ -1351,6 +1383,10 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                             while (true) {
                                 for (; column < last; ++column) {
                                     key = path[column];
+                                    // Prevent prototype pollution by rejecting dangerous keys
+                                    if (isDangerousKey(key)) {
+                                        key = null;
+                                    }
                                     if (key == null) {
                                         continue;
                                     }
@@ -1419,6 +1455,10 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                                 }
                                 if (column === last) {
                                     key = path[column];
+                                    // Prevent prototype pollution by rejecting dangerous keys
+                                    if (isDangerousKey(key)) {
+                                        key = null;
+                                    }
                                     if (key != null) {
                                         optimized[optimized.length = column + offset] = key;
                                         if ( // Put the message in the cache and migrate generation if needed.
@@ -2058,6 +2098,10 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                             key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                         }
                     }
+                    // Prevent prototype pollution by rejecting dangerous keys
+                    if (isDangerousKey(key)) {
+                        key = null;
+                    }
                     if (key == null) {
                         continue;
                     }
@@ -2123,6 +2167,10 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                                 while (true) {
                                     for (; column < last; ++column) {
                                         key = path[column];
+                                        // Prevent prototype pollution by rejecting dangerous keys
+                                        if (isDangerousKey(key)) {
+                                            key = null;
+                                        }
                                         if (key == null) {
                                             continue;
                                         }
@@ -2207,6 +2255,10 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                                     }
                                     if (column === last) {
                                         key = path[column];
+                                        // Prevent prototype pollution by rejecting dangerous keys
+                                        if (isDangerousKey(key)) {
+                                            key = null;
+                                        }
                                         if (key != null) {
                                             optimized[optimized.length = column + offset] = key;
                                             if ( // Put the message in the cache and migrate generation if needed.
@@ -2944,6 +2996,10 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
+                        // Prevent prototype pollution by rejecting dangerous keys
+                        if (isDangerousKey(key)) {
+                            key = null;
+                        }
                         if (key == null) {
                             continue;
                         }
@@ -3305,6 +3361,10 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                                 while (true) {
                                     for (; column < last; ++column) {
                                         key = path[column];
+                                        // Prevent prototype pollution by rejecting dangerous keys
+                                        if (isDangerousKey(key)) {
+                                            key = null;
+                                        }
                                         if (key == null) {
                                             continue;
                                         }
@@ -3683,6 +3743,10 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                                     }
                                     if (column === last) {
                                         key = path[column];
+                                        // Prevent prototype pollution by rejecting dangerous keys
+                                        if (isDangerousKey(key)) {
+                                            key = null;
+                                        }
                                         if (key != null) {
                                             optimized[optimized.length = column + offset] = key;
                                             context = contextParent[key];
@@ -4109,6 +4173,10 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                             } else {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
+                        }
+                        // Prevent prototype pollution by rejecting dangerous keys
+                        if (isDangerousKey(key)) {
+                            key = null;
                         }
                         original[original.length = column] = key;
                         if (key != null) {
@@ -4747,6 +4815,10 @@ function invalidatePath(path_, cache, parent, bound) {
                         key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                     }
                 }
+                // Prevent prototype pollution by rejecting dangerous keys
+                if (isDangerousKey(key)) {
+                    key = null;
+                }
                 if (key == null) {
                     continue;
                 }
@@ -4788,6 +4860,10 @@ function invalidatePath(path_, cache, parent, bound) {
                             while (true) {
                                 for (; column < last; ++column) {
                                     key = path[column];
+                                    // Prevent prototype pollution by rejecting dangerous keys
+                                    if (isDangerousKey(key)) {
+                                        key = null;
+                                    }
                                     if (key == null) {
                                         continue;
                                     }
@@ -4835,6 +4911,10 @@ function invalidatePath(path_, cache, parent, bound) {
                                 }
                                 if (column === last) {
                                     key = path[column];
+                                    // Prevent prototype pollution by rejecting dangerous keys
+                                    if (isDangerousKey(key)) {
+                                        key = null;
+                                    }
                                     if (key != null) {
                                         context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
                                     }
@@ -5099,6 +5179,10 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
+                        // Prevent prototype pollution by rejecting dangerous keys
+                        if (isDangerousKey(key)) {
+                            key = null;
+                        }
                         if (key == null) {
                             continue;
                         }
@@ -5140,6 +5224,10 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                                     while (true) {
                                         for (; column < last; ++column) {
                                             key = path[column];
+                                            // Prevent prototype pollution by rejecting dangerous keys
+                                            if (isDangerousKey(key)) {
+                                                key = null;
+                                            }
                                             if (key == null) {
                                                 continue;
                                             }
@@ -5187,6 +5275,10 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                                         }
                                         if (column === last) {
                                             key = path[column];
+                                            // Prevent prototype pollution by rejecting dangerous keys
+                                            if (isDangerousKey(key)) {
+                                                key = null;
+                                            }
                                             if (key != null) {
                                                 context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
                                             }
@@ -5435,6 +5527,10 @@ function pathMapWithObserver(paths_, observer_, parent) {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
+                        // Prevent prototype pollution by rejecting dangerous keys
+                        if (isDangerousKey(key)) {
+                            key = null;
+                        }
                         if (key == null) {
                             continue;
                         }
@@ -5457,6 +5553,10 @@ function pathMapWithObserver(paths_, observer_, parent) {
                             } else {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
+                        }
+                        // Prevent prototype pollution by rejecting dangerous keys
+                        if (isDangerousKey(key)) {
+                            key = null;
                         }
                         if (key != null) {
                             observers = (context = contextParent[key] || (contextParent[key] = {
