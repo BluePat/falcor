@@ -5435,7 +5435,7 @@ function pathMapWithObserver(paths_, observer_, parent) {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
-                        if (key == null) {
+                        if (key == null || key === '__proto__' || key === 'constructor' || key === 'prototype') {
                             continue;
                         }
                         observers = (context = contextParent[key] || (contextParent[key] = {
@@ -5458,7 +5458,7 @@ function pathMapWithObserver(paths_, observer_, parent) {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
-                        if (key != null) {
+                        if (key != null && key !== '__proto__' && key !== 'constructor' && key !== 'prototype') {
                             observers = (context = contextParent[key] || (contextParent[key] = {
                                 __observers: []
                             })).__observers;
