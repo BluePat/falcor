@@ -117,6 +117,10 @@ function identity(x) {
     return x;
 }
 
+function isDangerousKey(key) {
+    return key === '__proto__' || key === 'constructor' || key === 'prototype';
+}
+
 function get() {
     var a;
     var i = -1,
@@ -1286,7 +1290,7 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                         key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                     }
                 }
-                if (key == null) {
+                if (key == null || isDangerousKey(key)) {
                     continue;
                 }
                 original[original.length = column] = key;
@@ -2058,7 +2062,7 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                             key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                         }
                     }
-                    if (key == null) {
+                    if (key == null || isDangerousKey(key)) {
                         continue;
                     }
                     original[original.length = column] = key;
@@ -2123,7 +2127,7 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                                 while (true) {
                                     for (; column < last; ++column) {
                                         key = path[column];
-                                        if (key == null) {
+                                        if (key == null || isDangerousKey(key)) {
                                             continue;
                                         }
                                         optimized[optimized.length = column + offset] = key;
@@ -2207,7 +2211,7 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                                     }
                                     if (column === last) {
                                         key = path[column];
-                                        if (key != null) {
+                                        if (key != null && !isDangerousKey(key)) {
                                             optimized[optimized.length = column + offset] = key;
                                             if ( // Put the message in the cache and migrate generation if needed.
                                                 context && (contextParent[key] || {
@@ -2944,7 +2948,7 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
-                        if (key == null) {
+                        if (key == null || isDangerousKey(key)) {
                             continue;
                         }
                         original[original.length = column] = key;
@@ -3305,7 +3309,7 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                                 while (true) {
                                     for (; column < last; ++column) {
                                         key = path[column];
-                                        if (key == null) {
+                                        if (key == null || isDangerousKey(key)) {
                                             continue;
                                         }
                                         optimized[optimized.length = column + offset] = key;
@@ -3683,7 +3687,7 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                                     }
                                     if (column === last) {
                                         key = path[column];
-                                        if (key != null) {
+                                        if (key != null && !isDangerousKey(key)) {
                                             optimized[optimized.length = column + offset] = key;
                                             context = contextParent[key];
                                             message = messageParent && messageParent[key];
@@ -4111,7 +4115,7 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                             }
                         }
                         original[original.length = column] = key;
-                        if (key != null) {
+                        if (key != null && !isDangerousKey(key)) {
                             optimized[optimized.length = column + offset] = key;
                             context = contextParent[key];
                             message = messageParent && messageParent[key];
@@ -4747,7 +4751,7 @@ function invalidatePath(path_, cache, parent, bound) {
                         key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                     }
                 }
-                if (key == null) {
+                if (key == null || isDangerousKey(key)) {
                     continue;
                 }
                 context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
@@ -5099,7 +5103,7 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
-                        if (key == null) {
+                        if (key == null || isDangerousKey(key)) {
                             continue;
                         }
                         context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
@@ -5140,7 +5144,7 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                                     while (true) {
                                         for (; column < last; ++column) {
                                             key = path[column];
-                                            if (key == null) {
+                                            if (key == null || isDangerousKey(key)) {
                                                 continue;
                                             }
                                             context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
@@ -5187,7 +5191,7 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                                         }
                                         if (column === last) {
                                             key = path[column];
-                                            if (key != null) {
+                                            if (key != null && !isDangerousKey(key)) {
                                                 context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
                                             }
                                             if (context == null || contextType === 'error') {
@@ -5435,7 +5439,7 @@ function pathMapWithObserver(paths_, observer_, parent) {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
-                        if (key == null) {
+                        if (key == null || isDangerousKey(key)) {
                             continue;
                         }
                         observers = (context = contextParent[key] || (contextParent[key] = {
@@ -5458,7 +5462,7 @@ function pathMapWithObserver(paths_, observer_, parent) {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
-                        if (key != null) {
+                        if (key != null && !isDangerousKey(key)) {
                             observers = (context = contextParent[key] || (contextParent[key] = {
                                 __observers: []
                             })).__observers;
@@ -5535,7 +5539,7 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
-                        if (key == null) {
+                        if (key == null || isDangerousKey(key)) {
                             continue;
                         }
                         observers = (context = contextParent[key]).__observers;
@@ -5560,7 +5564,7 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
-                        if (key != null) {
+                        if (key != null && !isDangerousKey(key)) {
                             observers = (context = contextParent[key]).__observers;
                             if (observer != null) {
                                 var a$3, i$3;
