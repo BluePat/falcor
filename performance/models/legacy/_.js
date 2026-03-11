@@ -5404,6 +5404,12 @@ function pathMapWithObserver(paths_, observer_, parent) {
     var self = this,
         root = self._root,
         connected, materialized, streaming, refreshing, contexts, messages, error, errors, observer, observers, expired, paths, path, key, column, offset, last, index, length, sizeOffset, boundOptimized, original, optimized, pbv, originalMiss, originalMisses, optimizedMiss, optimizedMisses, refs, cols, crossed, depth, batchedOptimizedPathMap, batchedPathMap, batchedPathMaps, contextCache, contextParent, context, contextValue, contextType, contextSize, contextExpires, contextTimestamp, boundContext, messageCache, messageParent, message, messageValue, messageType, messageSize, messageExpires, messageTimestamp;
+    
+    // Helper function to check for dangerous prototype pollution keys
+    function isDangerousKey(k) {
+        return k === '__proto__' || k === 'constructor' || k === 'prototype';
+    }
+    
     observer = observer_;
     paths = paths_;
     index = 0;
@@ -5435,7 +5441,7 @@ function pathMapWithObserver(paths_, observer_, parent) {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
-                        if (key == null) {
+                        if (key == null || isDangerousKey(key)) {
                             continue;
                         }
                         observers = (context = contextParent[key] || (contextParent[key] = {
@@ -5458,7 +5464,7 @@ function pathMapWithObserver(paths_, observer_, parent) {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
-                        if (key != null) {
+                        if (key != null && !isDangerousKey(key)) {
                             observers = (context = contextParent[key] || (contextParent[key] = {
                                 __observers: []
                             })).__observers;
@@ -5968,7 +5974,7 @@ function toRoot() {
 
 function serialize(cache) {
     var frame, keys, key, context = cache || this._cache,
-        message = {},
+        message = Object.create(null),
         depth = 0,
         stack = [];
     recursing:
@@ -5982,6 +5988,11 @@ function serialize(cache) {
             message = frame.message;
             keys = frame.keys;
             while ((key = keys.pop()) != null) {
+                // Ensure we only access own properties of context
+                if (!Object.prototype.hasOwnProperty.call(frame.context, key)) {
+                    context = frame.context;
+                    continue;
+                }
                 context = context[key];
                 if (context == null || typeof context !== 'object') {
                     message[key] = context;
@@ -5992,7 +6003,7 @@ function serialize(cache) {
                     ++depth;
                     continue recursing;
                 } else {
-                    message = message[key] || (message[key] = {});
+                    message = message[key] || (message[key] = Object.create(null));
                     ++depth;
                     continue recursing;
                 }
@@ -6002,7 +6013,11 @@ function serialize(cache) {
     return message;
 
     function internalKeys(x) {
-        return x[0] !== '_' || x[1] !== '_';
+        // Filter out internal keys and dangerous prototype pollution keys
+        return (x[0] !== '_' || x[1] !== '_') && 
+               x !== '__proto__' && 
+               x !== 'constructor' && 
+               x !== 'prototype';
     }
 }
 
@@ -6021,6 +6036,11 @@ function deserialize(cache) {
             context = frame.context;
             keys = frame.keys;
             while ((key = keys.pop()) != null) {
+                // Ensure we only access own properties of context
+                if (!Object.prototype.hasOwnProperty.call(frame.context, key)) {
+                    context = frame.context;
+                    continue;
+                }
                 path[depth] = key;
                 context = context[key];
                 if (context == null || typeof context !== 'object' || context.$type !== void 0 || Array.isArray(context)) {
@@ -6040,7 +6060,12 @@ function deserialize(cache) {
     return this;
 
     function internalKeys(x) {
-        return x[0] !== '$' && (x[0] !== '_' || x[1] !== '_');
+        // Filter out internal keys and dangerous prototype pollution keys
+        return x[0] !== '$' && 
+               (x[0] !== '_' || x[1] !== '_') && 
+               x !== '__proto__' && 
+               x !== 'constructor' && 
+               x !== 'prototype';
     }
 }
 
@@ -6065,7 +6090,12 @@ function flatten(obj) {
             keys.sort();
             for (keyCount = 0; keyCount < keys.length; keyCount++) {
                 key = keys[keyCount];
-                if (key[0] !== '_' || key[1] !== '_') {
+                // Filter out internal keys and dangerous prototype pollution keys
+                if ((key[0] !== '_' || key[1] !== '_') && 
+                    key !== '__proto__' && 
+                    key !== 'constructor' && 
+                    key !== 'prototype' &&
+                    Object.prototype.hasOwnProperty.call(obj, key)) {
                     flattenedObject[key] = flatten(obj[key]);
                 }
             }
@@ -6131,7 +6161,12 @@ function createKey(list) {
 }
 
 function notPathMapInternalKeys(key) {
-    return key !== '__observers' && key !== '__pending' && key !== '__batchID';
+    return key !== '__observers' && 
+           key !== '__pending' && 
+           key !== '__batchID' && 
+           key !== '__proto__' && 
+           key !== 'constructor' && 
+           key !== 'prototype';
 }
 /**
  * Builds the set of collapsed
@@ -6153,6 +6188,10 @@ function buildQueries(root) {
     memo = {};
     while (++i < n) {
         child = children[i];
+        // Ensure we only access own properties of root
+        if (!Object.prototype.hasOwnProperty.call(root, child)) {
+            continue;
+        }
         paths = buildQueries(root[child]);
         key = createKey(paths);
         childIsNum = typeof child === 'string' && !charPattern.test(child);
@@ -6167,6 +6206,9 @@ function buildQueries(root) {
     }
     results = [];
     for (x in memo) {
+        if (!Object.prototype.hasOwnProperty.call(memo, x)) {
+            continue;
+        }
         head = (list = memo[x]).head;
         tail = list.tail;
         i = -1;
