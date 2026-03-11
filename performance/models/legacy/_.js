@@ -5408,9 +5408,11 @@ function pathMapWithObserver(paths_, observer_, parent) {
     paths = paths_;
     index = 0;
     length = paths.length;
-    observers = ((contexts = [])[-1] = context = parent || (parent = {
-        __observers: []
-    })).__observers;
+    if (!parent) {
+        parent = Object.create(null);
+        parent.__observers = [];
+    }
+    observers = ((contexts = [])[-1] = context = parent).__observers;
     if (observer && observers.indexOf(observer) === -1) {
         observers[observers.length] = observer;
     }
@@ -5438,9 +5440,11 @@ function pathMapWithObserver(paths_, observer_, parent) {
                         if (key == null) {
                             continue;
                         }
-                        observers = (context = contextParent[key] || (contextParent[key] = {
-                            __observers: []
-                        })).__observers;
+                        if (!contextParent[key]) {
+                            contextParent[key] = Object.create(null);
+                            contextParent[key].__observers = [];
+                        }
+                        observers = (context = contextParent[key]).__observers;
                         if (observer && observers.indexOf(observer) === -1) {
                             observers[observers.length] = observer;
                         }
@@ -5459,9 +5463,11 @@ function pathMapWithObserver(paths_, observer_, parent) {
                             }
                         }
                         if (key != null) {
-                            observers = (context = contextParent[key] || (contextParent[key] = {
-                                __observers: []
-                            })).__observers;
+                            if (!contextParent[key]) {
+                                contextParent[key] = Object.create(null);
+                                contextParent[key].__observers = [];
+                            }
+                            observers = (context = contextParent[key]).__observers;
                             if (observer && observers.indexOf(observer) === -1) {
                                 observers[observers.length] = observer;
                                 observer.count = (observer.count || 0) + 1;
@@ -5968,7 +5974,7 @@ function toRoot() {
 
 function serialize(cache) {
     var frame, keys, key, context = cache || this._cache,
-        message = {},
+        message = Object.create(null),
         depth = 0,
         stack = [];
     recursing:
@@ -5992,7 +5998,10 @@ function serialize(cache) {
                     ++depth;
                     continue recursing;
                 } else {
-                    message = message[key] || (message[key] = {});
+                    if (!message[key]) {
+                        message[key] = Object.create(null);
+                    }
+                    message = message[key];
                     ++depth;
                     continue recursing;
                 }
@@ -6150,7 +6159,7 @@ function buildQueries(root) {
             []
         ];
     }
-    memo = {};
+    memo = Object.create(null);
     while (++i < n) {
         child = children[i];
         paths = buildQueries(root[child]);
@@ -6222,12 +6231,10 @@ BatchRequestQueue.prototype.flush = function (originalPaths, optimizedPaths, obs
 function BatchRequest(rootPE, queue) {
     this.rootPE = rootPE;
     this.requestQueue = queue;
-    this.originalsSet = {
-        __observers: []
-    };
-    this.optimizedSet = {
-        __observers: []
-    };
+    this.originalsSet = Object.create(null);
+    this.originalsSet.__observers = [];
+    this.optimizedSet = Object.create(null);
+    this.optimizedSet.__observers = [];
     this.observers = 0;
     this.pending = false;
     this.operation = null;
