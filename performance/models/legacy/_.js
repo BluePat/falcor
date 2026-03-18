@@ -10,6 +10,11 @@ var Observable = Rx.Observable,
     µSize = 0.25,
     MIN_SAFE_INTEGER = -Math.pow(2, 53) - 1;
 
+// Helper function to check if a key is safe for object property access
+function isSafeKey(key) {
+    return key !== '__proto__' && key !== 'constructor' && key !== 'prototype';
+}
+
 function PathEvaluator(maxSize, collectRatio, loader, cache, path, now, errorSelector) {
     if (loader != null && typeof loader === 'object') {
         this.loader = loader;
@@ -327,6 +332,9 @@ function getPath(path_, cache, parent, bound) {
                 if (key == null) {
                     continue;
                 }
+                if (!isSafeKey(key)) {
+                    continue;
+                }
                 original[original.length = column] = key;
                 optimized[optimized.length = column + offset] = key;
                 context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
@@ -374,6 +382,9 @@ function getPath(path_, cache, parent, bound) {
                                 for (; column < last; ++column) {
                                     key = path[column];
                                     if (key == null) {
+                                        continue;
+                                    }
+                                    if (!isSafeKey(key)) {
                                         continue;
                                     }
                                     optimized[optimized.length = column + offset] = key;
@@ -441,7 +452,7 @@ function getPath(path_, cache, parent, bound) {
                                 }
                                 if (column === last) {
                                     key = path[column];
-                                    if (key != null) {
+                                    if (key != null && isSafeKey(key)) {
                                         optimized[optimized.length = column + offset] = key;
                                         context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
                                     }
@@ -559,7 +570,7 @@ function getPath(path_, cache, parent, bound) {
                     }
                 }
                 original[original.length = column] = key;
-                if (key != null) {
+                if (key != null && isSafeKey(key)) {
                     optimized[optimized.length = column + offset] = key;
                     context = contextParent[key];
                 }
@@ -722,6 +733,9 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                         if (key == null) {
                             continue;
                         }
+                        if (!isSafeKey(key)) {
+                            continue;
+                        }
                         original[original.length = column] = key;
                         optimized[optimized.length = column + offset] = key;
                         context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
@@ -770,6 +784,9 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                                         for (; column < last; ++column) {
                                             key = path[column];
                                             if (key == null) {
+                                                continue;
+                                            }
+                                            if (!isSafeKey(key)) {
                                                 continue;
                                             }
                                             optimized[optimized.length = column + offset] = key;
@@ -837,7 +854,7 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                                         }
                                         if (column === last) {
                                             key = path[column];
-                                            if (key != null) {
+                                            if (key != null && isSafeKey(key)) {
                                                 optimized[optimized.length = column + offset] = key;
                                                 context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
                                             }
@@ -955,7 +972,7 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                             }
                         }
                         original[original.length = column] = key;
-                        if (key != null) {
+                        if (key != null && isSafeKey(key)) {
                             optimized[optimized.length = column + offset] = key;
                             context = contextParent[key];
                         }
@@ -1289,6 +1306,9 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                 if (key == null) {
                     continue;
                 }
+                if (!isSafeKey(key)) {
+                    continue;
+                }
                 original[original.length = column] = key;
                 optimized[optimized.length = column + offset] = key;
                 if ( // Put the message in the cache and migrate generation if needed.
@@ -1352,6 +1372,9 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                                 for (; column < last; ++column) {
                                     key = path[column];
                                     if (key == null) {
+                                        continue;
+                                    }
+                                    if (!isSafeKey(key)) {
                                         continue;
                                     }
                                     context = contextParent[key];
@@ -1419,7 +1442,7 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                                 }
                                 if (column === last) {
                                     key = path[column];
-                                    if (key != null) {
+                                    if (key != null && isSafeKey(key)) {
                                         optimized[optimized.length = column + offset] = key;
                                         if ( // Put the message in the cache and migrate generation if needed.
                                             context && (contextParent[key] || {
@@ -1553,7 +1576,7 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                     }
                 }
                 original[original.length = column] = key;
-                if (key != null) {
+                if (key != null && isSafeKey(key)) {
                     optimized[optimized.length = column + offset] = key;
                     context = contextParent[key];
                     var sizeOffset$2 = 0;
@@ -2061,6 +2084,9 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                     if (key == null) {
                         continue;
                     }
+                    if (!isSafeKey(key)) {
+                        continue;
+                    }
                     original[original.length = column] = key;
                     optimized[optimized.length = column + offset] = key;
                     if ( // Put the message in the cache and migrate generation if needed.
@@ -2124,6 +2150,9 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                                     for (; column < last; ++column) {
                                         key = path[column];
                                         if (key == null) {
+                                            continue;
+                                        }
+                                        if (!isSafeKey(key)) {
                                             continue;
                                         }
                                         optimized[optimized.length = column + offset] = key;
@@ -2207,7 +2236,7 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                                     }
                                     if (column === last) {
                                         key = path[column];
-                                        if (key != null) {
+                                        if (key != null && isSafeKey(key)) {
                                             optimized[optimized.length = column + offset] = key;
                                             if ( // Put the message in the cache and migrate generation if needed.
                                                 context && (contextParent[key] || {
@@ -2341,7 +2370,7 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                         }
                     }
                     original[original.length = column] = key;
-                    if (key != null) {
+                    if (key != null && isSafeKey(key)) {
                         optimized[optimized.length = column + offset] = key;
                         context = contextParent[key];
                         var sizeOffset$2 = 0;
@@ -2947,6 +2976,9 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                         if (key == null) {
                             continue;
                         }
+                        if (!isSafeKey(key)) {
+                            continue;
+                        }
                         original[original.length = column] = key;
                         optimized[optimized.length = column + offset] = key;
                         context = contextParent[key];
@@ -3306,6 +3338,9 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                                     for (; column < last; ++column) {
                                         key = path[column];
                                         if (key == null) {
+                                            continue;
+                                        }
+                                        if (!isSafeKey(key)) {
                                             continue;
                                         }
                                         optimized[optimized.length = column + offset] = key;
@@ -3683,7 +3718,7 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                                     }
                                     if (column === last) {
                                         key = path[column];
-                                        if (key != null) {
+                                        if (key != null && isSafeKey(key)) {
                                             optimized[optimized.length = column + offset] = key;
                                             context = contextParent[key];
                                             message = messageParent && messageParent[key];
@@ -4111,7 +4146,7 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                             }
                         }
                         original[original.length = column] = key;
-                        if (key != null) {
+                        if (key != null && isSafeKey(key)) {
                             optimized[optimized.length = column + offset] = key;
                             context = contextParent[key];
                             message = messageParent && messageParent[key];
@@ -4750,6 +4785,9 @@ function invalidatePath(path_, cache, parent, bound) {
                 if (key == null) {
                     continue;
                 }
+                if (!isSafeKey(key)) {
+                    continue;
+                }
                 context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
                 while (Array.isArray(contextValue = (contextType // If the context is a sentinel, get its value.
                     // Otherwise, set contextValue to the context.
@@ -4835,7 +4873,7 @@ function invalidatePath(path_, cache, parent, bound) {
                                 }
                                 if (column === last) {
                                     key = path[column];
-                                    if (key != null) {
+                                    if (key != null && isSafeKey(key)) {
                                         context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
                                     }
                                     if (context == null || contextType === 'error') {
@@ -4930,7 +4968,7 @@ function invalidatePath(path_, cache, parent, bound) {
                         key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                     }
                 }
-                if (key != null) {
+                if (key != null && isSafeKey(key)) {
                     context = contextParent[key];
                 }
                 contextSize = (context && context['$size'] || 0) * -1;
@@ -5102,6 +5140,9 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                         if (key == null) {
                             continue;
                         }
+                        if (!isSafeKey(key)) {
+                            continue;
+                        }
                         context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
                         while (Array.isArray(contextValue = (contextType // If the context is a sentinel, get its value.
                             // Otherwise, set contextValue to the context.
@@ -5141,6 +5182,9 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                                         for (; column < last; ++column) {
                                             key = path[column];
                                             if (key == null) {
+                                                continue;
+                                            }
+                                            if (!isSafeKey(key)) {
                                                 continue;
                                             }
                                             context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
@@ -5187,7 +5231,7 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                                         }
                                         if (column === last) {
                                             key = path[column];
-                                            if (key != null) {
+                                            if (key != null && isSafeKey(key)) {
                                                 context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
                                             }
                                             if (context == null || contextType === 'error') {
@@ -5282,7 +5326,7 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
-                        if (key != null) {
+                        if (key != null && isSafeKey(key)) {
                             context = contextParent[key];
                         }
                         contextSize = (context && context['$size'] || 0) * -1;
@@ -5438,6 +5482,9 @@ function pathMapWithObserver(paths_, observer_, parent) {
                         if (key == null) {
                             continue;
                         }
+                        if (!isSafeKey(key)) {
+                            continue;
+                        }
                         observers = (context = contextParent[key] || (contextParent[key] = {
                             __observers: []
                         })).__observers;
@@ -5458,7 +5505,7 @@ function pathMapWithObserver(paths_, observer_, parent) {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
-                        if (key != null) {
+                        if (key != null && isSafeKey(key)) {
                             observers = (context = contextParent[key] || (contextParent[key] = {
                                 __observers: []
                             })).__observers;
@@ -5538,6 +5585,9 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                         if (key == null) {
                             continue;
                         }
+                        if (!isSafeKey(key)) {
+                            continue;
+                        }
                         observers = (context = contextParent[key]).__observers;
                         if (observer != null) {
                             var a$2, i$2;
@@ -5560,7 +5610,7 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                                 key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
                             }
                         }
-                        if (key != null) {
+                        if (key != null && isSafeKey(key)) {
                             observers = (context = contextParent[key]).__observers;
                             if (observer != null) {
                                 var a$3, i$3;
