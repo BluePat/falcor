@@ -1289,6 +1289,10 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                 if (key == null) {
                     continue;
                 }
+                // Prevent prototype pollution
+                if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+                    continue;
+                }
                 original[original.length = column] = key;
                 optimized[optimized.length = column + offset] = key;
                 if ( // Put the message in the cache and migrate generation if needed.
@@ -1352,6 +1356,10 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                                 for (; column < last; ++column) {
                                     key = path[column];
                                     if (key == null) {
+                                        continue;
+                                    }
+                                    // Prevent prototype pollution
+                                    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
                                         continue;
                                     }
                                     context = contextParent[key];
@@ -1420,6 +1428,16 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                                 if (column === last) {
                                     key = path[column];
                                     if (key != null) {
+                                        // Prevent prototype pollution
+                                        if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+                                            optimized.length = column + offset + 1;
+                                            column = cols[--depth];
+                                            offset = last - column - 1;
+                                            path = refs[depth];
+                                            last = path.length - 1;
+                                            original[original.length] = null;
+                                            break setting_path;
+                                        }
                                         optimized[optimized.length = column + offset] = key;
                                         if ( // Put the message in the cache and migrate generation if needed.
                                             context && (contextParent[key] || {
@@ -1554,6 +1572,11 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                 }
                 original[original.length = column] = key;
                 if (key != null) {
+                    // Prevent prototype pollution
+                    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+                        optimized.length = column + offset + 1;
+                        break setting_path;
+                    }
                     optimized[optimized.length = column + offset] = key;
                     context = contextParent[key];
                     var sizeOffset$2 = 0;
