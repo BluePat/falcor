@@ -10,6 +10,11 @@ var Observable = Rx.Observable,
     µSize = 0.25,
     MIN_SAFE_INTEGER = -Math.pow(2, 53) - 1;
 
+// Helper function to prevent prototype pollution
+function isDangerousKey(key) {
+    return key === '__proto__' || key === 'constructor' || key === 'prototype';
+}
+
 function PathEvaluator(maxSize, collectRatio, loader, cache, path, now, errorSelector) {
     if (loader != null && typeof loader === 'object') {
         this.loader = loader;
@@ -1289,6 +1294,10 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                 if (key == null) {
                     continue;
                 }
+                // Prevent prototype pollution
+                if (isDangerousKey(key)) {
+                    continue;
+                }
                 original[original.length = column] = key;
                 optimized[optimized.length = column + offset] = key;
                 if ( // Put the message in the cache and migrate generation if needed.
@@ -1420,6 +1429,10 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                                 if (column === last) {
                                     key = path[column];
                                     if (key != null) {
+                                        // Prevent prototype pollution
+                                        if (isDangerousKey(key)) {
+                                            break setting_path;
+                                        }
                                         optimized[optimized.length = column + offset] = key;
                                         if ( // Put the message in the cache and migrate generation if needed.
                                             context && (contextParent[key] || {
@@ -1554,6 +1567,10 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                 }
                 original[original.length = column] = key;
                 if (key != null) {
+                    // Prevent prototype pollution
+                    if (isDangerousKey(key)) {
+                        break setting_path;
+                    }
                     optimized[optimized.length = column + offset] = key;
                     context = contextParent[key];
                     var sizeOffset$2 = 0;
@@ -2061,6 +2078,10 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                     if (key == null) {
                         continue;
                     }
+                    // Prevent prototype pollution
+                    if (isDangerousKey(key)) {
+                        continue;
+                    }
                     original[original.length = column] = key;
                     optimized[optimized.length = column + offset] = key;
                     if ( // Put the message in the cache and migrate generation if needed.
@@ -2124,6 +2145,10 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                                     for (; column < last; ++column) {
                                         key = path[column];
                                         if (key == null) {
+                                            continue;
+                                        }
+                                        // Prevent prototype pollution
+                                        if (isDangerousKey(key)) {
                                             continue;
                                         }
                                         optimized[optimized.length = column + offset] = key;
@@ -2208,6 +2233,10 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                                     if (column === last) {
                                         key = path[column];
                                         if (key != null) {
+                                            // Prevent prototype pollution
+                                            if (isDangerousKey(key)) {
+                                                break setting_path;
+                                            }
                                             optimized[optimized.length = column + offset] = key;
                                             if ( // Put the message in the cache and migrate generation if needed.
                                                 context && (contextParent[key] || {
@@ -2342,6 +2371,10 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                     }
                     original[original.length = column] = key;
                     if (key != null) {
+                        // Prevent prototype pollution
+                        if (isDangerousKey(key)) {
+                            break setting_path;
+                        }
                         optimized[optimized.length = column + offset] = key;
                         context = contextParent[key];
                         var sizeOffset$2 = 0;
@@ -2945,6 +2978,10 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                             }
                         }
                         if (key == null) {
+                            continue;
+                        }
+                        // Prevent prototype pollution
+                        if (isDangerousKey(key)) {
                             continue;
                         }
                         original[original.length = column] = key;
@@ -3684,6 +3721,10 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                                     if (column === last) {
                                         key = path[column];
                                         if (key != null) {
+                                            // Prevent prototype pollution
+                                            if (isDangerousKey(key)) {
+                                                break setting_pbf;
+                                            }
                                             optimized[optimized.length = column + offset] = key;
                                             context = contextParent[key];
                                             message = messageParent && messageParent[key];
@@ -4112,6 +4153,10 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                         }
                         original[original.length = column] = key;
                         if (key != null) {
+                            // Prevent prototype pollution
+                            if (isDangerousKey(key)) {
+                                break setting_pbf;
+                            }
                             optimized[optimized.length = column + offset] = key;
                             context = contextParent[key];
                             message = messageParent && messageParent[key];
@@ -5436,6 +5481,10 @@ function pathMapWithObserver(paths_, observer_, parent) {
                             }
                         }
                         if (key == null) {
+                            continue;
+                        }
+                        // Prevent prototype pollution
+                        if (isDangerousKey(key)) {
                             continue;
                         }
                         observers = (context = contextParent[key] || (contextParent[key] = {
