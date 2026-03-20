@@ -10,6 +10,15 @@ var Observable = Rx.Observable,
     µSize = 0.25,
     MIN_SAFE_INTEGER = -Math.pow(2, 53) - 1;
 
+// Helper functions to prevent prototype pollution by tracking iteration state
+// without mutating caller-supplied objects
+function getKeyState(stateMap, key, defaultState) {
+    if (!stateMap.has(key)) {
+        stateMap.set(key, Object.assign({}, defaultState));
+    }
+    return stateMap.get(key);
+}
+
 function PathEvaluator(maxSize, collectRatio, loader, cache, path, now, errorSelector) {
     if (loader != null && typeof loader === 'object') {
         this.loader = loader;
@@ -310,18 +319,23 @@ function getPath(path_, cache, parent, bound) {
     expired = self._expired || (self._expired = []);
     refs[-1] = path;
     cols[-1] = 0;
+    // WeakMap to track iteration state without mutating caller objects (prevents prototype pollution)
+    var keyStateMap = new WeakMap();
     getting_path:
         while (true) {
             for (; column < last; ++column) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        var state = getKeyState(keyStateMap, key, { index: 0 });
+                        key = key[state.index];
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                            key = keyState.offset;
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                        key = keyState.offset;
                     }
                 }
                 if (key == null) {
@@ -550,12 +564,15 @@ function getPath(path_, cache, parent, bound) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        var state = getKeyState(keyStateMap, key, { index: 0 });
+                        key = key[state.index];
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                            key = keyState.offset;
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                        key = keyState.offset;
                     }
                 }
                 original[original.length = column] = key;
@@ -681,9 +698,12 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
     cols[-1] = 0;
     crossed[-1] = boundOptimized = path;
     contexts[-1] = contextParent;
+    // WeakMap to track iteration state without mutating caller objects (prevents prototype pollution)
+    var keyStateMap = new WeakMap();
     for (; index < length; paths.index = ++index) {
         path = paths[index];
-        column = path.index || (path.index = 0);
+        var pathState = getKeyState(keyStateMap, path, { index: 0 });
+        column = pathState.index;
         last = path.length - 1;
         refs[-1] = path;
         crossed = [];
@@ -711,12 +731,15 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                var state = getKeyState(keyStateMap, key, { index: 0 });
+                                key = key[state.index];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                                    key = keyState.offset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                                key = keyState.offset;
                             }
                         }
                         if (key == null) {
@@ -946,12 +969,15 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                var state = getKeyState(keyStateMap, key, { index: 0 });
+                                key = key[state.index];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                                    key = keyState.offset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                                key = keyState.offset;
                             }
                         }
                         original[original.length = column] = key;
@@ -1174,8 +1200,10 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                     }
                     if ( // TODO: replace this with a faster Array check.
                         Array.isArray(key)) {
-                        if (++key.index === key.length) {
-                            key = key[key.index = 0];
+                        var state = getKeyState(keyStateMap, key, { index: 0 });
+                        if (++state.index === key.length) {
+                            state.index = 0;
+                            key = key[state.index];
                             if (key == null || typeof key !== 'object') {
                                 continue ascending;
                             }
@@ -1183,15 +1211,16 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                             break ascending;
                         }
                     }
-                    if (++key.offset > (key.to || (key.to = key.from + (key.length || 1) - 1))) {
-                        key.offset = key.from;
+                    var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0, to: key.to !== void 0 ? key.to : (key.from !== void 0 ? key.from : 0) + ((key.length || 1) - 1) });
+                    if (++keyState.offset > keyState.to) {
+                        keyState.offset = keyState.from;
                         continue ascending;
                     }
                     break ascending;
                 }
         }
     }
-    paths.index = 0;
+    pathState.index = 0;
     if (false && connected === true && optimizedMisses.length > 0) {
         observer = {
             onNext: onNext || noop,
@@ -1272,18 +1301,23 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
     expired = self._expired || (self._expired = []);
     refs[-1] = path;
     cols[-1] = 0;
+    // WeakMap to track iteration state without mutating caller objects (prevents prototype pollution)
+    var keyStateMap = new WeakMap();
     setting_path:
         while (true) {
             for (; column < last; ++column) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        var state = getKeyState(keyStateMap, key, { index: 0 });
+                        key = key[state.index];
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                            key = keyState.offset;
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                        key = keyState.offset;
                     }
                 }
                 if (key == null) {
@@ -1544,12 +1578,15 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        var state = getKeyState(keyStateMap, key, { index: 0 });
+                        key = key[state.index];
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                            key = keyState.offset;
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                        key = keyState.offset;
                     }
                 }
                 original[original.length = column] = key;
@@ -2032,11 +2069,14 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
     cols[-1] = 0;
     crossed[-1] = boundOptimized = path;
     boundContext = parent;
+    // WeakMap to track iteration state without mutating caller objects (prevents prototype pollution)
+    var keyStateMap = new WeakMap();
     for (; index < length; pbvs.index = ++index) {
         pbv = pbvs[index];
         path = pbv.path;
         message = pbv.value;
-        column = path.index || (path.index = 0);
+        var pathState = getKeyState(keyStateMap, path, { index: 0 });
+        column = pathState.index;
         offset = 0;
         last = path.length - 1;
         contextParent = boundContext;
@@ -2050,12 +2090,15 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                     key = path[column];
                     if (key != null && typeof key === 'object') {
                         if (Array.isArray(key)) {
-                            key = key[key.index || (key.index = 0)];
+                            var state = getKeyState(keyStateMap, key, { index: 0 });
+                            key = key[state.index];
                             if (key != null && typeof key === 'object') {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                                key = keyState.offset;
                             }
                         } else {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                            key = keyState.offset;
                         }
                     }
                     if (key == null) {
@@ -2332,12 +2375,15 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                     key = path[column];
                     if (key != null && typeof key === 'object') {
                         if (Array.isArray(key)) {
-                            key = key[key.index || (key.index = 0)];
+                            var state = getKeyState(keyStateMap, key, { index: 0 });
+                            key = key[state.index];
                             if (key != null && typeof key === 'object') {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                                key = keyState.offset;
                             }
                         } else {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                            key = keyState.offset;
                         }
                     }
                     original[original.length = column] = key;
@@ -2897,6 +2943,8 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
         };
         batchedPathMap = self._pathMapWithObserver(paths, observer, batchedPathMap);
     }
+    // WeakMap to track iteration state without mutating caller objects (prevents prototype pollution)
+    var keyStateMap = new WeakMap();
     index = pbf.index || (pbf.index = 0);
     length = paths.length;
     contexts[-1] = contextParent;
@@ -2904,8 +2952,9 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
     batchedPathMaps[-1] = batchedPathMap;
     for (; index < length; paths.index = ++index) {
         path = paths[index];
-        column = path.index || (path.index = 0);
-        offset = path.offset || (path.offset = 0);
+        var pathState = getKeyState(keyStateMap, path, { index: 0, offset: 0 });
+        column = pathState.index;
+        offset = pathState.offset;
         last = path.length - 1;
         depth = -1;
         refs[-1] = path;
@@ -2936,12 +2985,15 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                var state = getKeyState(keyStateMap, key, { index: 0 });
+                                key = key[state.index];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                                    key = keyState.offset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                                key = keyState.offset;
                             }
                         }
                         if (key == null) {
@@ -4102,12 +4154,15 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                var state = getKeyState(keyStateMap, key, { index: 0 });
+                                key = key[state.index];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                                    key = keyState.offset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                                key = keyState.offset;
                             }
                         }
                         original[original.length = column] = key;
@@ -4559,8 +4614,10 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                     }
                     if ( // TODO: replace this with a faster Array check.
                         Array.isArray(key)) {
-                        if (++key.index === key.length) {
-                            key = key[key.index = 0];
+                        var state = getKeyState(keyStateMap, key, { index: 0 });
+                        if (++state.index === key.length) {
+                            state.index = 0;
+                            key = key[state.index];
                             if (key == null || typeof key !== 'object') {
                                 continue ascending;
                             }
@@ -4568,14 +4625,17 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                             break ascending;
                         }
                     }
-                    if (++key.offset > (key.to || (key.to = key.from + (key.length || 1) - 1))) {
-                        key.offset = key.from;
+                    var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0, to: key.to !== void 0 ? key.to : (key.from !== void 0 ? key.from : 0) + ((key.length || 1) - 1) });
+                    if (++keyState.offset > keyState.to) {
+                        keyState.offset = keyState.from;
                         continue ascending;
                     }
                     break ascending;
                 }
         }
     }
+    pathState.index = 0;
+    pathState.offset = 0;
     batchedPathMap = batchedPathMaps[-1];
     var x$3, xs$3 = batchedPathMap.__observers.concat(),
         i$27 = -1,
@@ -4733,18 +4793,23 @@ function invalidatePath(path_, cache, parent, bound) {
     expired = self._expired || (self._expired = []);
     refs[-1] = path;
     cols[-1] = 0;
+    // WeakMap to track iteration state without mutating caller objects (prevents prototype pollution)
+    var keyStateMap = new WeakMap();
     invalidating_path:
         while (true) {
             for (; column < last; ++column) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        var state = getKeyState(keyStateMap, key, { index: 0 });
+                        key = key[state.index];
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                            key = keyState.offset;
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                        key = keyState.offset;
                     }
                 }
                 if (key == null) {
@@ -4922,12 +4987,15 @@ function invalidatePath(path_, cache, parent, bound) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        var state = getKeyState(keyStateMap, key, { index: 0 });
+                        key = key[state.index];
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                            key = keyState.offset;
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                        key = keyState.offset;
                     }
                 }
                 if (key != null) {
@@ -5073,10 +5141,13 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
     cols[-1] = 0;
     crossed[-1] = boundOptimized = path;
     contexts[-1] = contextParent;
+    // WeakMap to track iteration state without mutating caller objects (prevents prototype pollution)
+    var keyStateMap = new WeakMap();
     for (; index < length; paths.index = ++index) {
         path = paths[index];
-        column = path.index || (path.index = 0);
-        offset = path.offset || (path.offset = 0);
+        var pathState = getKeyState(keyStateMap, path, { index: 0, offset: 0 });
+        column = pathState.index;
+        offset = pathState.offset;
         last = path.length - 1;
         depth = -1;
         refs[-1] = path;
@@ -5091,12 +5162,15 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                var state = getKeyState(keyStateMap, key, { index: 0 });
+                                key = key[state.index];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                                    key = keyState.offset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                                key = keyState.offset;
                             }
                         }
                         if (key == null) {
@@ -5274,12 +5348,15 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                var state = getKeyState(keyStateMap, key, { index: 0 });
+                                key = key[state.index];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                                    key = keyState.offset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                                key = keyState.offset;
                             }
                         }
                         if (key != null) {
@@ -5374,8 +5451,10 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                     }
                     if ( // TODO: replace this with a faster Array check.
                         Array.isArray(key)) {
-                        if (++key.index === key.length) {
-                            key = key[key.index = 0];
+                        var state = getKeyState(keyStateMap, key, { index: 0 });
+                        if (++state.index === key.length) {
+                            state.index = 0;
+                            key = key[state.index];
                             if (key == null || typeof key !== 'object') {
                                 continue ascending;
                             }
@@ -5383,14 +5462,17 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                             break ascending;
                         }
                     }
-                    if (++key.offset > (key.to || (key.to = key.from + (key.length || 1) - 1))) {
-                        key.offset = key.from;
+                    var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0, to: key.to !== void 0 ? key.to : (key.from !== void 0 ? key.from : 0) + ((key.length || 1) - 1) });
+                    if (++keyState.offset > keyState.to) {
+                        keyState.offset = keyState.from;
                         continue ascending;
                     }
                     break ascending;
                 }
         }
     }
+    pathState.index = 0;
+    pathState.offset = 0;
     if (onNext) {
         onNext(this);
     }
@@ -5414,6 +5496,8 @@ function pathMapWithObserver(paths_, observer_, parent) {
     if (observer && observers.indexOf(observer) === -1) {
         observers[observers.length] = observer;
     }
+    // WeakMap to track iteration state without mutating caller objects (prevents prototype pollution)
+    var keyStateMap = new WeakMap();
     for (; index < length; paths.index = ++index) {
         path = paths[index];
         column = 0;
@@ -5427,12 +5511,15 @@ function pathMapWithObserver(paths_, observer_, parent) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                var state = getKeyState(keyStateMap, key, { index: 0 });
+                                key = key[state.index];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                                    key = keyState.offset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                                key = keyState.offset;
                             }
                         }
                         if (key == null) {
@@ -5450,12 +5537,15 @@ function pathMapWithObserver(paths_, observer_, parent) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                var state = getKeyState(keyStateMap, key, { index: 0 });
+                                key = key[state.index];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                                    key = keyState.offset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                                key = keyState.offset;
                             }
                         }
                         if (key != null) {
@@ -5478,8 +5568,10 @@ function pathMapWithObserver(paths_, observer_, parent) {
                     }
                     if ( // TODO: replace this with a faster Array check.
                         Array.isArray(key)) {
-                        if (++key.index === key.length) {
-                            key = key[key.index = 0];
+                        var state = getKeyState(keyStateMap, key, { index: 0 });
+                        if (++state.index === key.length) {
+                            state.index = 0;
+                            key = key[state.index];
                             if (key == null || typeof key !== 'object') {
                                 continue ascending;
                             }
@@ -5487,8 +5579,9 @@ function pathMapWithObserver(paths_, observer_, parent) {
                             break ascending;
                         }
                     }
-                    if (++key.offset > (key.to || (key.to = key.from + (key.length || 1) - 1))) {
-                        key.offset = key.from;
+                    var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0, to: key.to !== void 0 ? key.to : (key.from !== void 0 ? key.from : 0) + ((key.length || 1) - 1) });
+                    if (++keyState.offset > keyState.to) {
+                        keyState.offset = keyState.from;
                         continue ascending;
                     }
                     break ascending;
@@ -5514,6 +5607,8 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
             a.splice(i, 1);
         }
     }
+    // WeakMap to track iteration state without mutating caller objects (prevents prototype pollution)
+    var keyStateMap = new WeakMap();
     for (; index < length; paths.index = ++index) {
         path = paths[index];
         column = 0;
@@ -5527,12 +5622,15 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                var state = getKeyState(keyStateMap, key, { index: 0 });
+                                key = key[state.index];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                                    key = keyState.offset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                                key = keyState.offset;
                             }
                         }
                         if (key == null) {
@@ -5552,12 +5650,15 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                var state = getKeyState(keyStateMap, key, { index: 0 });
+                                key = key[state.index];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                                    key = keyState.offset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0 });
+                                key = keyState.offset;
                             }
                         }
                         if (key != null) {
@@ -5582,8 +5683,10 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                     }
                     if ( // TODO: replace this with a faster Array check.
                         Array.isArray(key)) {
-                        if (++key.index === key.length) {
-                            key = key[key.index = 0];
+                        var state = getKeyState(keyStateMap, key, { index: 0 });
+                        if (++state.index === key.length) {
+                            state.index = 0;
+                            key = key[state.index];
                             if (key == null || typeof key !== 'object') {
                                 continue ascending;
                             }
@@ -5591,8 +5694,9 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                             break ascending;
                         }
                     }
-                    if (++key.offset > (key.to || (key.to = key.from + (key.length || 1) - 1))) {
-                        key.offset = key.from;
+                    var keyState = getKeyState(keyStateMap, key, { offset: key.from !== void 0 ? key.from : 0, from: key.from !== void 0 ? key.from : 0, to: key.to !== void 0 ? key.to : (key.from !== void 0 ? key.from : 0) + ((key.length || 1) - 1) });
+                    if (++keyState.offset > keyState.to) {
+                        keyState.offset = keyState.from;
                         continue ascending;
                     }
                     break ascending;
