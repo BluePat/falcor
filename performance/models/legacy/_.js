@@ -5984,17 +5984,25 @@ function serialize(cache) {
             while ((key = keys.pop()) != null) {
                 context = context[key];
                 if (context == null || typeof context !== 'object') {
-                    message[key] = context;
+                    if (!isPollutionKey(key)) {
+                        message[key] = context;
+                    }
                     context = frame.context;
                 } else if ( // TODO: replace this with a faster Array check.
                     Array.isArray(context)) {
-                    message = message[key] || (message[key] = []);
-                    ++depth;
-                    continue recursing;
+                    if (!isPollutionKey(key)) {
+                        message = message[key] || (message[key] = []);
+                        ++depth;
+                        continue recursing;
+                    }
+                    context = frame.context;
                 } else {
-                    message = message[key] || (message[key] = {});
-                    ++depth;
-                    continue recursing;
+                    if (!isPollutionKey(key)) {
+                        message = message[key] || (message[key] = {});
+                        ++depth;
+                        continue recursing;
+                    }
+                    context = frame.context;
                 }
             }
             stack[depth--] = void 0;
@@ -6003,6 +6011,10 @@ function serialize(cache) {
 
     function internalKeys(x) {
         return x[0] !== '_' || x[1] !== '_';
+    }
+
+    function isPollutionKey(key) {
+        return key === '__proto__' || key === 'constructor' || key === 'prototype';
     }
 }
 
@@ -6065,13 +6077,17 @@ function flatten(obj) {
             keys.sort();
             for (keyCount = 0; keyCount < keys.length; keyCount++) {
                 key = keys[keyCount];
-                if (key[0] !== '_' || key[1] !== '_') {
+                if ((key[0] !== '_' || key[1] !== '_') && !isPollutionKey(key)) {
                     flattenedObject[key] = flatten(obj[key]);
                 }
             }
             obj = Object.getPrototypeOf(obj);
         } while (obj != null);
         return flattenedObject;
+    }
+
+    function isPollutionKey(key) {
+        return key === '__proto__' || key === 'constructor' || key === 'prototype';
     }
 }
 
