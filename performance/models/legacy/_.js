@@ -117,6 +117,68 @@ function identity(x) {
     return x;
 }
 
+function isPrototypePolluted(obj) {
+    // Check if obj is a dangerous prototype object that should not be mutated
+    if (obj == null) {
+        return false;
+    }
+    return obj === Object.prototype || 
+           obj === Array.prototype || 
+           obj === Function.prototype ||
+           obj === String.prototype ||
+           obj === Number.prototype ||
+           obj === Boolean.prototype ||
+           obj === RegExp.prototype ||
+           obj === Date.prototype;
+}
+
+function safeProcessKey(key) {
+    // Safely process a key object without prototype pollution
+    if (key != null && typeof key === 'object') {
+        if (isPrototypePolluted(key)) {
+            return void 0;
+        }
+        if (Array.isArray(key)) {
+            if (isPrototypePolluted(key)) {
+                return 0;
+            }
+            var index = key.index;
+            if (index === void 0) {
+                index = key.index = 0;
+            }
+            key = key[index];
+            if (key != null && typeof key === 'object') {
+                if (isPrototypePolluted(key)) {
+                    return 0;
+                }
+                var offset = key.offset;
+                if (offset === void 0) {
+                    var from = key.from;
+                    if (from === void 0) {
+                        from = key.from = 0;
+                    }
+                    offset = key.offset = from;
+                }
+                return offset;
+            }
+        } else {
+            if (isPrototypePolluted(key)) {
+                return 0;
+            }
+            var offset = key.offset;
+            if (offset === void 0) {
+                var from = key.from;
+                if (from === void 0) {
+                    from = key.from = 0;
+                }
+                offset = key.offset = from;
+            }
+            return offset;
+        }
+    }
+    return key;
+}
+
 function get() {
     var a;
     var i = -1,
@@ -314,16 +376,7 @@ function getPath(path_, cache, parent, bound) {
         while (true) {
             for (; column < last; ++column) {
                 key = path[column];
-                if (key != null && typeof key === 'object') {
-                    if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
-                        if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                        }
-                    } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                    }
-                }
+                key = safeProcessKey(key);
                 if (key == null) {
                     continue;
                 }
@@ -548,16 +601,7 @@ function getPath(path_, cache, parent, bound) {
             }
             if (column === last) {
                 key = path[column];
-                if (key != null && typeof key === 'object') {
-                    if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
-                        if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                        }
-                    } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                    }
-                }
+                key = safeProcessKey(key);
                 original[original.length = column] = key;
                 if (key != null) {
                     optimized[optimized.length = column + offset] = key;
@@ -683,7 +727,11 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
     contexts[-1] = contextParent;
     for (; index < length; paths.index = ++index) {
         path = paths[index];
-        column = path.index || (path.index = 0);
+        if (isPrototypePolluted(path)) {
+            column = 0;
+        } else {
+            column = path.index || (path.index = 0);
+        }
         last = path.length - 1;
         refs[-1] = path;
         crossed = [];
@@ -709,16 +757,7 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                 while (true) {
                     for (; column < last; ++column) {
                         key = path[column];
-                        if (key != null && typeof key === 'object') {
-                            if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
-                                if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                                }
-                            } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                            }
-                        }
+                        key = safeProcessKey(key);
                         if (key == null) {
                             continue;
                         }
@@ -944,16 +983,7 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                     }
                     if (column === last) {
                         key = path[column];
-                        if (key != null && typeof key === 'object') {
-                            if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
-                                if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                                }
-                            } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                            }
-                        }
+                        key = safeProcessKey(key);
                         original[original.length = column] = key;
                         if (key != null) {
                             optimized[optimized.length = column + offset] = key;
@@ -1172,6 +1202,9 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                     if (key == null || typeof key !== 'object') {
                         continue ascending;
                     }
+                    if (isPrototypePolluted(key)) {
+                        continue ascending;
+                    }
                     if ( // TODO: replace this with a faster Array check.
                         Array.isArray(key)) {
                         if (++key.index === key.length) {
@@ -1276,16 +1309,7 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
         while (true) {
             for (; column < last; ++column) {
                 key = path[column];
-                if (key != null && typeof key === 'object') {
-                    if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
-                        if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                        }
-                    } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                    }
-                }
+                key = safeProcessKey(key);
                 if (key == null) {
                     continue;
                 }
@@ -1542,16 +1566,7 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
             }
             if (column === last) {
                 key = path[column];
-                if (key != null && typeof key === 'object') {
-                    if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
-                        if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                        }
-                    } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                    }
-                }
+                key = safeProcessKey(key);
                 original[original.length = column] = key;
                 if (key != null) {
                     optimized[optimized.length = column + offset] = key;
@@ -2036,7 +2051,11 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
         pbv = pbvs[index];
         path = pbv.path;
         message = pbv.value;
-        column = path.index || (path.index = 0);
+        if (isPrototypePolluted(path)) {
+            column = 0;
+        } else {
+            column = path.index || (path.index = 0);
+        }
         offset = 0;
         last = path.length - 1;
         contextParent = boundContext;
@@ -2048,16 +2067,7 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
             while (true) {
                 for (; column < last; ++column) {
                     key = path[column];
-                    if (key != null && typeof key === 'object') {
-                        if (Array.isArray(key)) {
-                            key = key[key.index || (key.index = 0)];
-                            if (key != null && typeof key === 'object') {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                            }
-                        } else {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                        }
-                    }
+                    key = safeProcessKey(key);
                     if (key == null) {
                         continue;
                     }
@@ -2330,16 +2340,7 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                 }
                 if (column === last) {
                     key = path[column];
-                    if (key != null && typeof key === 'object') {
-                        if (Array.isArray(key)) {
-                            key = key[key.index || (key.index = 0)];
-                            if (key != null && typeof key === 'object') {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                            }
-                        } else {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                        }
-                    }
+                    key = safeProcessKey(key);
                     original[original.length = column] = key;
                     if (key != null) {
                         optimized[optimized.length = column + offset] = key;
@@ -2897,15 +2898,24 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
         };
         batchedPathMap = self._pathMapWithObserver(paths, observer, batchedPathMap);
     }
-    index = pbf.index || (pbf.index = 0);
+    if (isPrototypePolluted(pbf)) {
+        index = 0;
+    } else {
+        index = pbf.index || (pbf.index = 0);
+    }
     length = paths.length;
     contexts[-1] = contextParent;
     messages[-1] = messageParent;
     batchedPathMaps[-1] = batchedPathMap;
     for (; index < length; paths.index = ++index) {
         path = paths[index];
-        column = path.index || (path.index = 0);
-        offset = path.offset || (path.offset = 0);
+        if (isPrototypePolluted(path)) {
+            column = 0;
+            offset = 0;
+        } else {
+            column = path.index || (path.index = 0);
+            offset = path.offset || (path.offset = 0);
+        }
         last = path.length - 1;
         depth = -1;
         refs[-1] = path;
@@ -2934,16 +2944,7 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                 while (true) {
                     for (; column < last; ++column) {
                         key = path[column];
-                        if (key != null && typeof key === 'object') {
-                            if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
-                                if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                                }
-                            } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                            }
-                        }
+                        key = safeProcessKey(key);
                         if (key == null) {
                             continue;
                         }
@@ -4101,13 +4102,29 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                     if (column === last) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
-                            if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                            if (isPrototypePolluted(key)) {
+                                // Skip processing if key is a prototype object
+                                key = void 0;
+                            } else if (Array.isArray(key)) {
+                                var keyArray = key;
+                                if (isPrototypePolluted(keyArray)) {
+                                    key = 0;
+                                } else {
+                                    key = keyArray[keyArray.index || (keyArray.index = 0)];
+                                }
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    if (isPrototypePolluted(key)) {
+                                        key = 0;
+                                    } else {
+                                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    }
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                if (isPrototypePolluted(key)) {
+                                    key = 0;
+                                } else {
+                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                }
                             }
                         }
                         original[original.length = column] = key;
@@ -4557,6 +4574,9 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                     if (key == null || typeof key !== 'object') {
                         continue ascending;
                     }
+                    if (isPrototypePolluted(key)) {
+                        continue ascending;
+                    }
                     if ( // TODO: replace this with a faster Array check.
                         Array.isArray(key)) {
                         if (++key.index === key.length) {
@@ -4737,16 +4757,7 @@ function invalidatePath(path_, cache, parent, bound) {
         while (true) {
             for (; column < last; ++column) {
                 key = path[column];
-                if (key != null && typeof key === 'object') {
-                    if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
-                        if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                        }
-                    } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                    }
-                }
+                key = safeProcessKey(key);
                 if (key == null) {
                     continue;
                 }
@@ -4835,6 +4846,7 @@ function invalidatePath(path_, cache, parent, bound) {
                                 }
                                 if (column === last) {
                                     key = path[column];
+                                    key = safeProcessKey(key);
                                     if (key != null) {
                                         context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
                                     }
@@ -5075,8 +5087,13 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
     contexts[-1] = contextParent;
     for (; index < length; paths.index = ++index) {
         path = paths[index];
-        column = path.index || (path.index = 0);
-        offset = path.offset || (path.offset = 0);
+        if (isPrototypePolluted(path)) {
+            column = 0;
+            offset = 0;
+        } else {
+            column = path.index || (path.index = 0);
+            offset = path.offset || (path.offset = 0);
+        }
         last = path.length - 1;
         depth = -1;
         refs[-1] = path;
@@ -5089,16 +5106,7 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                 while (true) {
                     for (; column < last; ++column) {
                         key = path[column];
-                        if (key != null && typeof key === 'object') {
-                            if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
-                                if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                                }
-                            } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                            }
-                        }
+                        key = safeProcessKey(key);
                         if (key == null) {
                             continue;
                         }
@@ -5272,16 +5280,7 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                     }
                     if (column === last) {
                         key = path[column];
-                        if (key != null && typeof key === 'object') {
-                            if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
-                                if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                                }
-                            } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                            }
-                        }
+                        key = safeProcessKey(key);
                         if (key != null) {
                             context = contextParent[key];
                         }
@@ -5372,6 +5371,9 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                     if (key == null || typeof key !== 'object') {
                         continue ascending;
                     }
+                    if (isPrototypePolluted(key)) {
+                        continue ascending;
+                    }
                     if ( // TODO: replace this with a faster Array check.
                         Array.isArray(key)) {
                         if (++key.index === key.length) {
@@ -5448,16 +5450,7 @@ function pathMapWithObserver(paths_, observer_, parent) {
                     }
                     if (column === last) {
                         key = path[column];
-                        if (key != null && typeof key === 'object') {
-                            if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
-                                if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                                }
-                            } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                            }
-                        }
+                        key = safeProcessKey(key);
                         if (key != null) {
                             observers = (context = contextParent[key] || (contextParent[key] = {
                                 __observers: []
@@ -5474,6 +5467,9 @@ function pathMapWithObserver(paths_, observer_, parent) {
                 for (; column >= 0; --column) {
                     key = path[column];
                     if (key == null || typeof key !== 'object') {
+                        continue ascending;
+                    }
+                    if (isPrototypePolluted(key)) {
                         continue ascending;
                     }
                     if ( // TODO: replace this with a faster Array check.
@@ -5550,16 +5546,7 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                     }
                     if (column === last) {
                         key = path[column];
-                        if (key != null && typeof key === 'object') {
-                            if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
-                                if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                                }
-                            } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
-                            }
-                        }
+                        key = safeProcessKey(key);
                         if (key != null) {
                             observers = (context = contextParent[key]).__observers;
                             if (observer != null) {
@@ -5578,6 +5565,9 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                 for (; column >= 0; --column) {
                     key = path[column];
                     if (key == null || typeof key !== 'object') {
+                        continue ascending;
+                    }
+                    if (isPrototypePolluted(key)) {
                         continue ascending;
                     }
                     if ( // TODO: replace this with a faster Array check.
