@@ -6014,7 +6014,7 @@ function serialize(cache) {
     }
 
     function isPollutionKey(key) {
-        return key === '__proto__' || key === 'constructor' || key === 'prototype';
+        return key === "__proto__" || key === "constructor" || key === "prototype";
     }
 }
 
@@ -6087,7 +6087,7 @@ function flatten(obj) {
     }
 
     function isPollutionKey(key) {
-        return key === '__proto__' || key === 'constructor' || key === 'prototype';
+        return key === "__proto__" || key === "constructor" || key === "prototype";
     }
 }
 
