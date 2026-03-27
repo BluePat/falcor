@@ -5968,7 +5968,7 @@ function toRoot() {
 
 function serialize(cache) {
     var frame, keys, key, context = cache || this._cache,
-        message = {},
+        message = Object.create(null),
         depth = 0,
         stack = [];
     recursing:
@@ -5992,7 +5992,7 @@ function serialize(cache) {
                     ++depth;
                     continue recursing;
                 } else {
-                    message = message[key] || (message[key] = {});
+                    message = message[key] || (message[key] = Object.create(null));
                     ++depth;
                     continue recursing;
                 }
@@ -6002,7 +6002,14 @@ function serialize(cache) {
     return message;
 
     function internalKeys(x) {
-        return x[0] !== '_' || x[1] !== '_';
+        // Block keys starting with __ and dangerous prototype pollution keys
+        if (x[0] === '_' && x[1] === '_') {
+            return false;
+        }
+        if (x === '__proto__' || x === 'constructor' || x === 'prototype') {
+            return false;
+        }
+        return true;
     }
 }
 
@@ -6040,7 +6047,17 @@ function deserialize(cache) {
     return this;
 
     function internalKeys(x) {
-        return x[0] !== '$' && (x[0] !== '_' || x[1] !== '_');
+        // Block keys starting with $ or __ and dangerous prototype pollution keys
+        if (x[0] === '$') {
+            return false;
+        }
+        if (x[0] === '_' && x[1] === '_') {
+            return false;
+        }
+        if (x === '__proto__' || x === 'constructor' || x === 'prototype') {
+            return false;
+        }
+        return true;
     }
 }
 
