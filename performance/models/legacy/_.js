@@ -10,6 +10,18 @@ var Observable = Rx.Observable,
     µSize = 0.25,
     MIN_SAFE_INTEGER = -Math.pow(2, 53) - 1;
 
+// Helper function to check if an object could lead to prototype pollution
+function isDangerousObject(obj) {
+    if (obj == null || typeof obj !== 'object') {
+        return false;
+    }
+    // Check if the object is a prototype object
+    return obj === Object.prototype || obj === Array.prototype || 
+           obj === Function.prototype || obj === String.prototype ||
+           obj === Number.prototype || obj === Boolean.prototype ||
+           obj === RegExp.prototype || obj === Date.prototype;
+}
+
 function PathEvaluator(maxSize, collectRatio, loader, cache, path, now, errorSelector) {
     if (loader != null && typeof loader === 'object') {
         this.loader = loader;
@@ -315,13 +327,23 @@ function getPath(path_, cache, parent, bound) {
             for (; column < last; ++column) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
+                    if (isDangerousObject(key)) {
+                        // Skip dangerous objects that could lead to prototype pollution
+                        continue;
+                    }
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        var keyIndex = key.index != null ? key.index : 0;
+                        key = key[keyIndex];
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            if (isDangerousObject(key)) {
+                                continue;
+                            }
+                            var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                            key = keyOffset;
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                        key = keyOffset;
                     }
                 }
                 if (key == null) {
@@ -329,7 +351,7 @@ function getPath(path_, cache, parent, bound) {
                 }
                 original[original.length = column] = key;
                 optimized[optimized.length = column + offset] = key;
-                context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
+                context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires === 0 && contextExpires > Date.now()) ? void 0 : context);
                 while (Array.isArray(contextValue = (contextType // If the context is a sentinel, get its value.
                     // Otherwise, set contextValue to the context.
                     = context && context[ // If the context is a sentinel, get its value.
@@ -549,13 +571,22 @@ function getPath(path_, cache, parent, bound) {
             if (column === last) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
-                    if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                    if (isDangerousObject(key)) {
+                        key = null;
+                    } else if (Array.isArray(key)) {
+                        var keyIndex = key.index != null ? key.index : 0;
+                        key = key[keyIndex];
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            if (isDangerousObject(key)) {
+                                key = null;
+                            } else {
+                                var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                                key = keyOffset;
+                            }
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                        key = keyOffset;
                     }
                 }
                 original[original.length = column] = key;
@@ -683,7 +714,7 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
     contexts[-1] = contextParent;
     for (; index < length; paths.index = ++index) {
         path = paths[index];
-        column = path.index || (path.index = 0);
+        column = path.index != null ? path.index : 0;
         last = path.length - 1;
         refs[-1] = path;
         crossed = [];
@@ -710,13 +741,23 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                     for (; column < last; ++column) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
+                            if (isDangerousObject(key)) {
+                                // Skip dangerous objects that could lead to prototype pollution
+                                continue;
+                            }
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                var keyIndex = key.index != null ? key.index : 0;
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    if (isDangerousObject(key)) {
+                                        continue;
+                                    }
+                                    var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                                    key = keyOffset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                                key = keyOffset;
                             }
                         }
                         if (key == null) {
@@ -1172,21 +1213,34 @@ function getPaths(model, paths_, onNext, onError, onCompleted, cache, parent, bo
                     if (key == null || typeof key !== 'object') {
                         continue ascending;
                     }
+                    if (isDangerousObject(key)) {
+                        // Cannot iterate over dangerous objects
+                        continue ascending;
+                    }
                     if ( // TODO: replace this with a faster Array check.
                         Array.isArray(key)) {
-                        if (++key.index === key.length) {
-                            key = key[key.index = 0];
+                        var currentIndex = (key.index != null ? key.index : 0) + 1;
+                        if (currentIndex === key.length) {
+                            key.index = 0;
+                            key = key[0];
                             if (key == null || typeof key !== 'object') {
                                 continue ascending;
                             }
+                            if (isDangerousObject(key)) {
+                                continue ascending;
+                            }
                         } else {
+                            key.index = currentIndex;
                             break ascending;
                         }
                     }
-                    if (++key.offset > (key.to || (key.to = key.from + (key.length || 1) - 1))) {
-                        key.offset = key.from;
+                    var currentOffset = (key.offset != null ? key.offset : (key.from != null ? key.from : 0)) + 1;
+                    var keyTo = key.to != null ? key.to : ((key.from != null ? key.from : 0) + (key.length != null ? key.length : 1) - 1);
+                    if (currentOffset > keyTo) {
+                        key.offset = key.from != null ? key.from : 0;
                         continue ascending;
                     }
+                    key.offset = currentOffset;
                     break ascending;
                 }
         }
@@ -1277,13 +1331,23 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
             for (; column < last; ++column) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
+                    if (isDangerousObject(key)) {
+                        // Skip dangerous objects that could lead to prototype pollution
+                        continue;
+                    }
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        var keyIndex = key.index != null ? key.index : 0;
+                        key = key[keyIndex];
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            if (isDangerousObject(key)) {
+                                continue;
+                            }
+                            var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                            key = keyOffset;
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                        key = keyOffset;
                     }
                 }
                 if (key == null) {
@@ -2036,7 +2100,7 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
         pbv = pbvs[index];
         path = pbv.path;
         message = pbv.value;
-        column = path.index || (path.index = 0);
+        column = path.index != null ? path.index : 0;
         offset = 0;
         last = path.length - 1;
         contextParent = boundContext;
@@ -2049,13 +2113,23 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                 for (; column < last; ++column) {
                     key = path[column];
                     if (key != null && typeof key === 'object') {
+                        if (isDangerousObject(key)) {
+                            // Skip dangerous objects that could lead to prototype pollution
+                            continue;
+                        }
                         if (Array.isArray(key)) {
-                            key = key[key.index || (key.index = 0)];
+                            var keyIndex = key.index != null ? key.index : 0;
+                            key = key[keyIndex];
                             if (key != null && typeof key === 'object') {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                if (isDangerousObject(key)) {
+                                    continue;
+                                }
+                                var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                                key = keyOffset;
                             }
                         } else {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                            key = keyOffset;
                         }
                     }
                     if (key == null) {
@@ -2904,8 +2978,8 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
     batchedPathMaps[-1] = batchedPathMap;
     for (; index < length; paths.index = ++index) {
         path = paths[index];
-        column = path.index || (path.index = 0);
-        offset = path.offset || (path.offset = 0);
+        column = path.index != null ? path.index : 0;
+        offset = path.offset != null ? path.offset : 0;
         last = path.length - 1;
         depth = -1;
         refs[-1] = path;
@@ -2935,13 +3009,23 @@ function setPBF(pbf, onNext, onError, onCompleted, cache, parent, bound) {
                     for (; column < last; ++column) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
+                            if (isDangerousObject(key)) {
+                                // Skip dangerous objects that could lead to prototype pollution
+                                continue;
+                            }
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                var keyIndex = key.index != null ? key.index : 0;
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    if (isDangerousObject(key)) {
+                                        continue;
+                                    }
+                                    var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                                    key = keyOffset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                                key = keyOffset;
                             }
                         }
                         if (key == null) {
@@ -4738,13 +4822,23 @@ function invalidatePath(path_, cache, parent, bound) {
             for (; column < last; ++column) {
                 key = path[column];
                 if (key != null && typeof key === 'object') {
+                    if (isDangerousObject(key)) {
+                        // Skip dangerous objects that could lead to prototype pollution
+                        continue;
+                    }
                     if (Array.isArray(key)) {
-                        key = key[key.index || (key.index = 0)];
+                        var keyIndex = key.index != null ? key.index : 0;
+                        key = key[keyIndex];
                         if (key != null && typeof key === 'object') {
-                            key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                            if (isDangerousObject(key)) {
+                                continue;
+                            }
+                            var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                            key = keyOffset;
                         }
                     } else {
-                        key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                        var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                        key = keyOffset;
                     }
                 }
                 if (key == null) {
@@ -5075,8 +5169,8 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
     contexts[-1] = contextParent;
     for (; index < length; paths.index = ++index) {
         path = paths[index];
-        column = path.index || (path.index = 0);
-        offset = path.offset || (path.offset = 0);
+        column = path.index != null ? path.index : 0;
+        offset = path.offset != null ? path.offset : 0;
         last = path.length - 1;
         depth = -1;
         refs[-1] = path;
@@ -5090,13 +5184,23 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                     for (; column < last; ++column) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
+                            if (isDangerousObject(key)) {
+                                // Skip dangerous objects that could lead to prototype pollution
+                                continue;
+                            }
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                var keyIndex = key.index != null ? key.index : 0;
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    if (isDangerousObject(key)) {
+                                        continue;
+                                    }
+                                    var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                                    key = keyOffset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                                key = keyOffset;
                             }
                         }
                         if (key == null) {
@@ -5372,21 +5476,34 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                     if (key == null || typeof key !== 'object') {
                         continue ascending;
                     }
+                    if (isDangerousObject(key)) {
+                        // Cannot iterate over dangerous objects
+                        continue ascending;
+                    }
                     if ( // TODO: replace this with a faster Array check.
                         Array.isArray(key)) {
-                        if (++key.index === key.length) {
-                            key = key[key.index = 0];
+                        var currentIndex = (key.index != null ? key.index : 0) + 1;
+                        if (currentIndex === key.length) {
+                            key.index = 0;
+                            key = key[0];
                             if (key == null || typeof key !== 'object') {
                                 continue ascending;
                             }
+                            if (isDangerousObject(key)) {
+                                continue ascending;
+                            }
                         } else {
+                            key.index = currentIndex;
                             break ascending;
                         }
                     }
-                    if (++key.offset > (key.to || (key.to = key.from + (key.length || 1) - 1))) {
-                        key.offset = key.from;
+                    var currentOffset = (key.offset != null ? key.offset : (key.from != null ? key.from : 0)) + 1;
+                    var keyTo = key.to != null ? key.to : ((key.from != null ? key.from : 0) + (key.length != null ? key.length : 1) - 1);
+                    if (currentOffset > keyTo) {
+                        key.offset = key.from != null ? key.from : 0;
                         continue ascending;
                     }
+                    key.offset = currentOffset;
                     break ascending;
                 }
         }
@@ -5426,13 +5543,23 @@ function pathMapWithObserver(paths_, observer_, parent) {
                     for (; column < last; ++column) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
+                            if (isDangerousObject(key)) {
+                                // Skip dangerous objects that could lead to prototype pollution
+                                continue;
+                            }
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                var keyIndex = key.index != null ? key.index : 0;
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    if (isDangerousObject(key)) {
+                                        continue;
+                                    }
+                                    var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                                    key = keyOffset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                                key = keyOffset;
                             }
                         }
                         if (key == null) {
@@ -5449,13 +5576,22 @@ function pathMapWithObserver(paths_, observer_, parent) {
                     if (column === last) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
-                            if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                            if (isDangerousObject(key)) {
+                                key = null;
+                            } else if (Array.isArray(key)) {
+                                var keyIndex = key.index != null ? key.index : 0;
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    if (isDangerousObject(key)) {
+                                        key = null;
+                                    } else {
+                                        var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                                        key = keyOffset;
+                                    }
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                                key = keyOffset;
                             }
                         }
                         if (key != null) {
@@ -5476,21 +5612,34 @@ function pathMapWithObserver(paths_, observer_, parent) {
                     if (key == null || typeof key !== 'object') {
                         continue ascending;
                     }
+                    if (isDangerousObject(key)) {
+                        // Cannot iterate over dangerous objects
+                        continue ascending;
+                    }
                     if ( // TODO: replace this with a faster Array check.
                         Array.isArray(key)) {
-                        if (++key.index === key.length) {
-                            key = key[key.index = 0];
+                        var currentIndex = (key.index != null ? key.index : 0) + 1;
+                        if (currentIndex === key.length) {
+                            key.index = 0;
+                            key = key[0];
                             if (key == null || typeof key !== 'object') {
                                 continue ascending;
                             }
+                            if (isDangerousObject(key)) {
+                                continue ascending;
+                            }
                         } else {
+                            key.index = currentIndex;
                             break ascending;
                         }
                     }
-                    if (++key.offset > (key.to || (key.to = key.from + (key.length || 1) - 1))) {
-                        key.offset = key.from;
+                    var currentOffset = (key.offset != null ? key.offset : (key.from != null ? key.from : 0)) + 1;
+                    var keyTo = key.to != null ? key.to : ((key.from != null ? key.from : 0) + (key.length != null ? key.length : 1) - 1);
+                    if (currentOffset > keyTo) {
+                        key.offset = key.from != null ? key.from : 0;
                         continue ascending;
                     }
+                    key.offset = currentOffset;
                     break ascending;
                 }
         }
@@ -5526,13 +5675,23 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                     for (; column < last; ++column) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
+                            if (isDangerousObject(key)) {
+                                // Skip dangerous objects that could lead to prototype pollution
+                                continue;
+                            }
                             if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                                var keyIndex = key.index != null ? key.index : 0;
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    if (isDangerousObject(key)) {
+                                        continue;
+                                    }
+                                    var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                                    key = keyOffset;
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                                key = keyOffset;
                             }
                         }
                         if (key == null) {
@@ -5551,13 +5710,22 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                     if (column === last) {
                         key = path[column];
                         if (key != null && typeof key === 'object') {
-                            if (Array.isArray(key)) {
-                                key = key[key.index || (key.index = 0)];
+                            if (isDangerousObject(key)) {
+                                key = null;
+                            } else if (Array.isArray(key)) {
+                                var keyIndex = key.index != null ? key.index : 0;
+                                key = key[keyIndex];
                                 if (key != null && typeof key === 'object') {
-                                    key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                    if (isDangerousObject(key)) {
+                                        key = null;
+                                    } else {
+                                        var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                                        key = keyOffset;
+                                    }
                                 }
                             } else {
-                                key = key.offset === void 0 && (key.offset = key.from || (key.from = 0)) || key.offset;
+                                var keyOffset = key.offset !== void 0 ? key.offset : (key.from != null ? key.from : 0);
+                                key = keyOffset;
                             }
                         }
                         if (key != null) {
@@ -5580,21 +5748,34 @@ function pathMapWithoutObserver(paths_, observer_, pathMap) {
                     if (key == null || typeof key !== 'object') {
                         continue ascending;
                     }
+                    if (isDangerousObject(key)) {
+                        // Cannot iterate over dangerous objects
+                        continue ascending;
+                    }
                     if ( // TODO: replace this with a faster Array check.
                         Array.isArray(key)) {
-                        if (++key.index === key.length) {
-                            key = key[key.index = 0];
+                        var currentIndex = (key.index != null ? key.index : 0) + 1;
+                        if (currentIndex === key.length) {
+                            key.index = 0;
+                            key = key[0];
                             if (key == null || typeof key !== 'object') {
                                 continue ascending;
                             }
+                            if (isDangerousObject(key)) {
+                                continue ascending;
+                            }
                         } else {
+                            key.index = currentIndex;
                             break ascending;
                         }
                     }
-                    if (++key.offset > (key.to || (key.to = key.from + (key.length || 1) - 1))) {
-                        key.offset = key.from;
+                    var currentOffset = (key.offset != null ? key.offset : (key.from != null ? key.from : 0)) + 1;
+                    var keyTo = key.to != null ? key.to : ((key.from != null ? key.from : 0) + (key.length != null ? key.length : 1) - 1);
+                    if (currentOffset > keyTo) {
+                        key.offset = key.from != null ? key.from : 0;
                         continue ascending;
                     }
+                    key.offset = currentOffset;
                     break ascending;
                 }
         }
