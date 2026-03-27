@@ -517,7 +517,10 @@ function notPathMapInternalKeys(key) {
     return (
         key !== "__observers" &&
         key !== "__pending" &&
-        key !== "__batchID"
+        key !== "__batchID" &&
+        key !== "constructor" &&
+        key !== "prototype" &&
+        key !== "__proto__"
         );
 }
 
