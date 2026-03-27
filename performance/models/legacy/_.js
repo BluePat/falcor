@@ -4750,6 +4750,9 @@ function invalidatePath(path_, cache, parent, bound) {
                 if (key == null) {
                     continue;
                 }
+                if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+                    continue;
+                }
                 context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
                 while (Array.isArray(contextValue = (contextType // If the context is a sentinel, get its value.
                     // Otherwise, set contextValue to the context.
@@ -4789,6 +4792,9 @@ function invalidatePath(path_, cache, parent, bound) {
                                 for (; column < last; ++column) {
                                     key = path[column];
                                     if (key == null) {
+                                        continue;
+                                    }
+                                    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
                                         continue;
                                     }
                                     context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
@@ -4836,6 +4842,9 @@ function invalidatePath(path_, cache, parent, bound) {
                                 if (column === last) {
                                     key = path[column];
                                     if (key != null) {
+                                        if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+                                            break invalidating_path;
+                                        }
                                         context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
                                     }
                                     if (context == null || contextType === 'error') {
@@ -4931,6 +4940,9 @@ function invalidatePath(path_, cache, parent, bound) {
                     }
                 }
                 if (key != null) {
+                    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+                        break invalidating_path;
+                    }
                     context = contextParent[key];
                 }
                 contextSize = (context && context['$size'] || 0) * -1;
@@ -5102,6 +5114,9 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                         if (key == null) {
                             continue;
                         }
+                        if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+                            continue;
+                        }
                         context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
                         while (Array.isArray(contextValue = (contextType // If the context is a sentinel, get its value.
                             // Otherwise, set contextValue to the context.
@@ -5141,6 +5156,9 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                                         for (; column < last; ++column) {
                                             key = path[column];
                                             if (key == null) {
+                                                continue;
+                                            }
+                                            if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
                                                 continue;
                                             }
                                             context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
@@ -5188,6 +5206,9 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                                         if (column === last) {
                                             key = path[column];
                                             if (key != null) {
+                                                if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+                                                    break invalidating_path;
+                                                }
                                                 context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
                                             }
                                             if (context == null || contextType === 'error') {
@@ -5283,6 +5304,9 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                             }
                         }
                         if (key != null) {
+                            if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+                                break invalidating_path;
+                            }
                             context = contextParent[key];
                         }
                         contextSize = (context && context['$size'] || 0) * -1;
