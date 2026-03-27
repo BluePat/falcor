@@ -44,6 +44,11 @@ function now() {
     return Date.now();
 }
 
+function isSafeKey(key) {
+    // Prevent prototype pollution by blocking dangerous property names
+    return key !== '__proto__' && key !== 'constructor' && key !== 'prototype';
+}
+
 function NOOP() {};
 
 falcor.__Internals = {};
@@ -13151,6 +13156,10 @@ function setPath(model, path, value, errorSelector) {
                             key$2 = linkPath[linkDepth];
                             nodeParent = node;
                             if (key$2 != null) {
+                                // Prevent prototype pollution
+                                if (!isSafeKey(key$2)) {
+                                    break follow_link_8272;
+                                }
                                 node = nodeParent && nodeParent[key$2];
                                 if (node == null || typeof node !== 'object' || !!nodeType && nodeType !== SENTINEL && !Array.isArray(nodeValue)) {
                                     nodeType = void 0;
@@ -13494,6 +13503,10 @@ function setPath(model, path, value, errorSelector) {
             key = path[depth];
             nodeParent = node;
             if (key != null) {
+                // Prevent prototype pollution
+                if (!isSafeKey(key)) {
+                    break follow_path_8128;
+                }
                 node = nodeParent && nodeParent[key];
                 optimizedPath[optimizedPath.length = depth + (linkHeight - linkIndex)] = key;
                 if (node == null || typeof node !== 'object' || !!nodeType && nodeType !== SENTINEL && !Array.isArray(nodeValue)) {

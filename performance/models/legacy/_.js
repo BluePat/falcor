@@ -117,6 +117,11 @@ function identity(x) {
     return x;
 }
 
+function isSafeKey(key) {
+    // Prevent prototype pollution by blocking dangerous property names
+    return key !== '__proto__' && key !== 'constructor' && key !== 'prototype';
+}
+
 function get() {
     var a;
     var i = -1,
@@ -1289,6 +1294,10 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                 if (key == null) {
                     continue;
                 }
+                // Prevent prototype pollution
+                if (!isSafeKey(key)) {
+                    continue;
+                }
                 original[original.length = column] = key;
                 optimized[optimized.length = column + offset] = key;
                 if ( // Put the message in the cache and migrate generation if needed.
@@ -1352,6 +1361,10 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                                 for (; column < last; ++column) {
                                     key = path[column];
                                     if (key == null) {
+                                        continue;
+                                    }
+                                    // Prevent prototype pollution
+                                    if (!isSafeKey(key)) {
                                         continue;
                                     }
                                     context = contextParent[key];
@@ -1554,6 +1567,10 @@ function setPath(pathOrPBV, valueOrCache, cache, parent, bound) {
                 }
                 original[original.length = column] = key;
                 if (key != null) {
+                    // Prevent prototype pollution
+                    if (!isSafeKey(key)) {
+                        break setting_path;
+                    }
                     optimized[optimized.length = column + offset] = key;
                     context = contextParent[key];
                     var sizeOffset$2 = 0;
@@ -2061,6 +2078,10 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                     if (key == null) {
                         continue;
                     }
+                    // Prevent prototype pollution
+                    if (!isSafeKey(key)) {
+                        continue;
+                    }
                     original[original.length = column] = key;
                     optimized[optimized.length = column + offset] = key;
                     if ( // Put the message in the cache and migrate generation if needed.
@@ -2124,6 +2145,10 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                                     for (; column < last; ++column) {
                                         key = path[column];
                                         if (key == null) {
+                                            continue;
+                                        }
+                                        // Prevent prototype pollution
+                                        if (!isSafeKey(key)) {
                                             continue;
                                         }
                                         optimized[optimized.length = column + offset] = key;
@@ -2342,6 +2367,10 @@ function setPaths(pbvs, onNext, onError, onCompleted, cache, parent, bound) {
                     }
                     original[original.length = column] = key;
                     if (key != null) {
+                        // Prevent prototype pollution
+                        if (!isSafeKey(key)) {
+                            break setting_path;
+                        }
                         optimized[optimized.length = column + offset] = key;
                         context = contextParent[key];
                         var sizeOffset$2 = 0;
@@ -4750,6 +4779,10 @@ function invalidatePath(path_, cache, parent, bound) {
                 if (key == null) {
                     continue;
                 }
+                // Prevent prototype pollution
+                if (!isSafeKey(key)) {
+                    continue;
+                }
                 context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
                 while (Array.isArray(contextValue = (contextType // If the context is a sentinel, get its value.
                     // Otherwise, set contextValue to the context.
@@ -4836,6 +4869,10 @@ function invalidatePath(path_, cache, parent, bound) {
                                 if (column === last) {
                                     key = path[column];
                                     if (key != null) {
+                                        // Prevent prototype pollution
+                                        if (!isSafeKey(key)) {
+                                            break invalidating_path;
+                                        }
                                         context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
                                     }
                                     if (context == null || contextType === 'error') {
@@ -4931,6 +4968,10 @@ function invalidatePath(path_, cache, parent, bound) {
                     }
                 }
                 if (key != null) {
+                    // Prevent prototype pollution
+                    if (!isSafeKey(key)) {
+                        break invalidating_path;
+                    }
                     context = contextParent[key];
                 }
                 contextSize = (context && context['$size'] || 0) * -1;
@@ -5102,6 +5143,10 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                         if (key == null) {
                             continue;
                         }
+                        // Prevent prototype pollution
+                        if (!isSafeKey(key)) {
+                            continue;
+                        }
                         context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
                         while (Array.isArray(contextValue = (contextType // If the context is a sentinel, get its value.
                             // Otherwise, set contextValue to the context.
@@ -5188,6 +5233,10 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                                         if (column === last) {
                                             key = path[column];
                                             if (key != null) {
+                                                // Prevent prototype pollution
+                                                if (!isSafeKey(key)) {
+                                                    break invalidating_path;
+                                                }
                                                 context = (context = contextParent[key]) && (!((contextExpires = context['$expires']) == null || contextExpires === 1 || contextExpires !== 0 && contextExpires > Date.now()) ? void 0 : context);
                                             }
                                             if (context == null || contextType === 'error') {
@@ -5283,6 +5332,10 @@ function invalidatePaths(paths_, onNext, onError, onCompleted, cache, parent, bo
                             }
                         }
                         if (key != null) {
+                            // Prevent prototype pollution
+                            if (!isSafeKey(key)) {
+                                break invalidating_path;
+                            }
                             context = contextParent[key];
                         }
                         contextSize = (context && context['$size'] || 0) * -1;
